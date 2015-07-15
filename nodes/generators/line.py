@@ -5,11 +5,11 @@ from mathutils import Vector
 from sverchok_redux.node_tree import SvRxTreeNode
 
 
-class SvRxMathVector(bpy.types.Node, SvRxTreeNode):
-    ''' Scalar Vector '''
+class SvRxLine(bpy.types.Node, SvRxTreeNode):
+    ''' Line '''
 
-    bl_idname = 'SvRxMathVector'
-    bl_label = 'Vector'
+    bl_idname = 'SvRxLine'
+    bl_label = 'Line'
 
     dummy = IntProperty(default=3)
 
@@ -18,8 +18,8 @@ class SvRxMathVector(bpy.types.Node, SvRxTreeNode):
 
 
 def register():
-    bpy.utils.register_class(SvRxMathVector)
+    bpy.utils.register_class(SvRxLine)
 
 
 def unregister():
-    bpy.utils.unregister_class(SvRxMathVector)
+    bpy.utils.unregister_class(SvRxLine)

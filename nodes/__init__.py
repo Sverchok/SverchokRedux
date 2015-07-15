@@ -1,18 +1,18 @@
 # this files assembles the file names of proper nodes.
 
 nodes_dict = {
-    'analyzer': [
-        'area',
-        'normals',
+    'generators': [
+        'line',
+        'plane',
         # leave this line blank
 
     ],
 
-    'basic_view': [
-        'viewer_bmesh',
-        'viewer_bmesh_mk2',
+    'array_math': [
+        'math_vector',
+        'math_scalar',
+        'math_trig',
         # leave this line blank
-
     ]
 
 }

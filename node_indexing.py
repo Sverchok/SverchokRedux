@@ -37,28 +37,16 @@ def make_node_cats():
     #   bl_idname,             shortname,       <icon> (optional)
 
     node_cats["Generators"] = [
-        ["LineNode",            "Line",                  "GRIP"],
-        ["PlaneNode",           "Plane",           "MESH_PLANE"],
+        ["SvRxLine",            "Line",                  "GRIP"],
+        ["SvRxPlane",           "Plane",           "MESH_PLANE"],
         # leave this line commented as last line
 
     ]
 
-    node_cats["Extended Generators"] = [
-        ["SvBoxRoundedNode",    "Rounded Box"],
-        ["HilbertNode",         "Hilbert"],
-        # leave this line commented as last line
-
-    ]
-
-    node_cats["Transforms"] = [
-        ["SvMirrorNode",        "Mirror",      "MOD_MIRROR"],
-        ["MatrixApplyNode",     "Matrix Apply"],
-        # leave this line commented as last line
-
-    ]
-
-    node_cats["Modifier Make"] = [
-        ['LineConnectNode',     'UV Connection'],
+    node_cats["Array Math"] = [
+        ["SvRxMathVector",      "Vector",                "GRIP"],
+        ["SvRxMathScalar",      "Scalar"],
+        ["SvRxMathTrig",        "Trig"],
         # leave this line commented as last line
 
     ]
