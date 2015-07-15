@@ -38,18 +38,87 @@ bl_info = {
 import sys
 import os
 import importlib
+import imp
+
+if __name__ != "sverchok_redux":
+    sys.modules["sverchok_redux"] = sys.modules[__name__]
+
+# to store imported modules
+imported_modules = []
+
+# ugly hack, should make respective dict in __init__ like nodes
+# or parse it
+root_modules = [
+    "node_indexing", "bl_node_tree",
+    "core", "utils", "ui", "nodes"
+]
+
+core_modules = []
+utils_modules = []
+ui_modules = []
+
+# modules and pkg path, nodes are done separately.
+mods_bases = [
+    (root_modules, "sverchok_redux"),
+    (core_modules, "sverchok_redux.core"),
+    (utils_modules, "sverchok_redux.utils"),
+    (ui_modules, "sverchok_redux.ui")
+]
 
 
-# ...
+def import_modules(modules, base, im_list):
+    for m in modules:
+        im = importlib.import_module('.{}'.format(m), base)
+        im_list.append(im)
+
+
+# parse the nodes/__init__.py dictionary and load all nodes
+def make_node_list():
+    node_list = []
+    base_name = "sverchok.nodes"
+    for category, names in nodes.nodes_dict.items():
+        importlib.import_module('.{}'.format(category), base_name)
+        import_modules(names, '{}.{}'.format(base_name, category), node_list)
+    return node_list
+
+for mods, base in mods_bases:
+    import_modules(mods, base, imported_modules)
+
+node_list = make_node_list()
+
+
+reload_event = bool("bpy" in locals())
+if reload_event:
+    print('reload event!')
+    import nodeitems_utils
+    #  reload the base modules
+    #  then reload nodes after the node module as been reloaded
+    for im in imported_modules:
+        importlib.reload(im)
+    node_list = make_node_list()
+    for node in node_list:
+        importlib.reload(node)
+    old_nodes.reload_old()
+    node_indexing.reload_menu()
 
 import bpy
 
 
 def register():
-    bpy.utils.register_module(__name__)
+    print('starting register function')
+    for m in imported_modules + node_list:
+        if hasattr(m, "register"):
+            m.register()
+    if reload_event:
+        print('handling reload event..')
+
     #  add_keymaps()
 
 
 def unregister():
-    bpy.utils.unregister_module(__name__)
+    print('starting unregister function')
+    for m in reversed(imported_modules + node_list):
+        if hasattr(m, "unregister"):
+            m.unregister()
+
     #  remove_keymaps()

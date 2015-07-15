@@ -24,6 +24,8 @@ import bpy
 from bpy.props import StringProperty, BoolProperty, FloatVectorProperty, IntProperty
 from bpy.types import NodeTree, NodeSocket, NodeSocketStandard
 
+sentinel = None
+
 
 class SvRxArraySocket(NodeSocketStandard):
 
