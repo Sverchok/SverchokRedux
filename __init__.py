@@ -22,7 +22,7 @@
 # ***** END GPL LICENCE BLOCK *****
 
 bl_info = {
-    "name": "Sverchok",
+    "name": "Sverchok Redux",
     "author": "Team Sverchok"
     "version": (0, 0, 0, 1),
     "blender": (2, 7, 5),
@@ -31,11 +31,25 @@ bl_info = {
     "warning": "",
     "wiki_url": "",
     "tracker_url": "https://github.com/Sverchok/SverchokRedux/issues",
-    "category": "Node"}
+    "category": "Node"
+}
 
 
 import sys
 import os
 import importlib
 
+
+# ...
+
 import bpy
+
+
+def register():
+    bpy.utils.register_module(__name__)
+    #  add_keymaps()
+
+
+def unregister():
+    bpy.utils.unregister_module(__name__)
+    #  remove_keymaps()
