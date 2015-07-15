@@ -49,7 +49,7 @@ imported_modules = []
 # ugly hack, should make respective dict in __init__ like nodes
 # or parse it
 root_modules = [
-    "node_indexing", "bl_node_tree",
+    "node_indexing", "node_tree",
     "core", "utils", "ui", "nodes"
 ]
 
@@ -75,7 +75,7 @@ def import_modules(modules, base, im_list):
 # parse the nodes/__init__.py dictionary and load all nodes
 def make_node_list():
     node_list = []
-    base_name = "sverchok.nodes"
+    base_name = "sverchok_redux.nodes"
     for category, names in nodes.nodes_dict.items():
         importlib.import_module('.{}'.format(category), base_name)
         import_modules(names, '{}.{}'.format(base_name, category), node_list)
@@ -98,7 +98,6 @@ if reload_event:
     node_list = make_node_list()
     for node in node_list:
         importlib.reload(node)
-    old_nodes.reload_old()
     node_indexing.reload_menu()
 
 import bpy
