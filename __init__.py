@@ -23,7 +23,7 @@
 
 bl_info = {
     "name": "Sverchok Redux",
-    "author": "Team Sverchok"
+    "author": "Team Sverchok",
     "version": (0, 0, 0, 1),
     "blender": (2, 7, 5),
     "location": "Nodes > CustomNodesTree",
