@@ -31,8 +31,8 @@ class SvRxArraySocket(NodeSocketStandard):
 
     ''' temp details '''
 
-    bl_idname = "StringsSocket"
-    bl_label = "Strings Socket"
+    bl_idname = "SvRxArraySocket"
+    bl_label = "Array Socket"
 
     prop_name = StringProperty(default='')
     prop_type = StringProperty(default='')
