@@ -83,6 +83,7 @@ nodes.load_nodes()
 reload_event = bool("bpy" in locals())
 
 if reload_event:
+    print("reloading")
     for im in imported_modules:
         importlib.reload(im)
     nodes.load_nodes()

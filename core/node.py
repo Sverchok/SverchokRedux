@@ -55,6 +55,7 @@ class SvRxNode:
         node_dict['label'] = self.label
         node_dict['hide'] = self.hide
         node_dict['color'] = self.color[:]
+        node_dict['use_custom_color'] = self.use_custom_color
 
         node_dict['inputs'] = [s.serialize() for s in self.inputs]
         node_dict['outputs'] = [s.serialize() for s in self.outputs]
@@ -74,6 +75,7 @@ class SvRxNode:
         self.label = node_data['label']
         self.hide = node_data['hide']
         self.color = node_data['color']
+        self.use_custom_color = node_data['use_custom_color']
 
 def Socket(s_type, name, **kwargs):
     #  1 should match s_type to socket,
