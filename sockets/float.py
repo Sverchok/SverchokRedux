@@ -1,7 +1,8 @@
 import bpy
+from .base import SvRxSocketBase
 
 
-class SvRxFloatSocket(bpy.types.NodeSocket):
+class SvRxFloatSocket(bpy.types.NodeSocket, SvRxSocketBase):
     default_value = bpy.props.FloatProperty()
 
     def draw(self, context, layout, node, text):

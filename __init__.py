@@ -56,7 +56,7 @@ util_modules = ["lib"]
 nodes_mods = ["math", "debug"]
 math_mods = ["linspace", "arange", "add"]
 debug_nodes = ["debugprint"]
-socket_mods = ["float", "int", "generic"]
+socket_mods = ["float", "int", "generic", "base"]
 
 # modules and pkg path, nodes are done separately.
 mods_bases = [(root_modules, "SverchokRedux"),
