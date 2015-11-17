@@ -39,13 +39,10 @@ class SvRxNode:
         node_enums = find_enumerators(self)
 
         for k, v in self.items():
-
-
             if isinstance(v, (float, int, str)):
                 node_items[k] = v
             else:
                 node_items[k] = v[:]
-
             if k in node_enums:
                 v = getattr(self, k)
                 node_items[k] = v
@@ -63,6 +60,10 @@ class SvRxNode:
         node_dict['outputs'] = [s.serialize() for s in self.outputs]
 
         return node_dict
+
+    def load(self, node_data):
+        # needs more details
+        self.location = node_data["location"]
 
 def Socket(s_type, name, **kwargs):
     #  1 should match s_type to socket,
