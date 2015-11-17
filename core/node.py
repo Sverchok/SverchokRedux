@@ -63,7 +63,17 @@ class SvRxNode:
 
     def load(self, node_data):
         # needs more details
-        self.location = node_data["location"]
+        params = node_data["params"]
+        for p in params.keys():
+            val = params[p]
+            setattr(self, p, val)
+
+        self.location = node_data['location']
+        self.height = node_data['height']
+        self.width = node_data['width']
+        self.label = node_data['label']
+        self.hide = node_data['hide']
+        self.color = node_data['color']
 
 def Socket(s_type, name, **kwargs):
     #  1 should match s_type to socket,

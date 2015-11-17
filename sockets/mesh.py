@@ -1,4 +1,5 @@
 import bpy
+from base import SvRxSocketBase
 
 
 class SvRxMeshSocket(bpy.types.NodeSocket):
