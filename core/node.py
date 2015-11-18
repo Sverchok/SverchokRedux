@@ -77,6 +77,11 @@ class SvRxNode:
         self.color = node_data['color']
         self.use_custom_color = node_data['use_custom_color']
 
+        # for now no output sockets
+        for socket_data in node_data["inputs"]:
+            name = socket_data["name"]
+            self.inputs[name].load(socket_data)
+
 def Socket(s_type, name, **kwargs):
     #  1 should match s_type to socket,
     #  2 match to specific subtype

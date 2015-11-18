@@ -8,3 +8,8 @@ class SvRxSocketBase(object):
                        "is_linked": self.is_linked
                        }
         return socket_dict
+
+    def load(self, socket_dict):
+        value = socket_dict["default_value"]
+        if not value is None:
+            self.default_value = value
