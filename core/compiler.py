@@ -1,4 +1,5 @@
 import SverchokRedux.nodes
+import numpy as np
 
 
 def compile(layout_dict):
@@ -28,6 +29,25 @@ def compile(layout_dict):
         create_graph(node, layout_dict)
     return out
 
+# this should be moved to an execute module I guess...
+
+
+def match_length(args):
+    lengths = [len(arg) for arg in args]
+    if lengths.count(lengths[0]) == len(lengths):
+        return args
+    max_len = max(lengths)
+    out = []
+    for arg, length in zip(args, lengths):
+        if length < max_len:
+            new_arg = np.zeros(max_len)
+            new_arg[:length] = arg
+            new_arg[length:] = arg[-1]
+            out.append(new_arg)
+        else:
+            out.append(arg)
+    return out
+
 
 class GraphNode():
     def __init__(self, name):
@@ -41,6 +61,9 @@ class GraphNode():
                 yield node
         yield self
 
+    def __hash__(self):
+        return hash(self.name)
+
     def add_child(self, child):
         self.children.append(child)
 
@@ -49,13 +72,13 @@ class ValueNode(GraphNode):
     def __init__(self, name, value):
         # socket name
         self.name = name
-        self.value = value
+        self.value = np.array([value])
         self.children = []
 
     def add_child(self, child):
         pass
 
-    def execute(self):
+    def execute(self, visited=set()):
         pass
 
 
@@ -65,20 +88,23 @@ class ExecNode(GraphNode):
         bl_idname = layout_dict["nodes"][name]["bl_idname"]
         self.func = SverchokRedux.nodes.node_dict[bl_idname].func
 
-    def execute(self):
-        for child in self.children:
-            child.execute()
-        args = [child.value for child in self.children]
+    def execute(self, visited=set()):
+        visited.add(self)
+        gen = (child for child in self.children if child not in visited)
+        for child in gen:
+            child.execute(visited)
+        args = match_length([child.value for child in self.children])
         self.value = self.func(*args)
 
 
 class IfNode(GraphNode):
 
-    def execute(self):
-        self.children[0].execute()
-        if self.children[0].eval():
+    def execute(self, visited=set()):
+        self.children[0].execute(visited)
+        #
+        if self.children[0].value:
             for child in self.children[1]:
-                child.execute()
+                child.execute(visited)
         else:
             for child in self.children[2]:
-                child.execute()
+                child.execute(visited)

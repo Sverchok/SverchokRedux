@@ -1,5 +1,6 @@
 from bpy.types import EnumProperty
 
+
 def find_enumerators(node):
     """
     From sverchok, by zeffi
