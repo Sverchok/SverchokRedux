@@ -23,7 +23,7 @@ class SverchCustomTree(NodeTree):
         pass
 
     def serialize(self):
-        layout_dict = {}
+        layout_dict = {"name": self.name}
         layout_dict["nodes"] = {node.name: node.serialize() for node in self.nodes}
         layout_dict["links"] = [get_link(l) for l in self.links]
         return layout_dict
