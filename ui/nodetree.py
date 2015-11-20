@@ -27,7 +27,7 @@ class SverchCustomTree(NodeTree):
     def execute(self):
         roots = self.compile()
         for root_node in roots:
-            root_node.execute()
+            root_node.execute(set())
 
     def compile(self):
         return compiler.compile(self.serialize())
@@ -49,7 +49,10 @@ class SverchCustomTree(NodeTree):
             node.name = name
             if node.name != name:
                 names_remap[name] = node.name
-            node.load(node_data)
+            if hasattr(node, 'load'):
+                node.load(node_data)
+            else:  # frames, reroutes etc.
+                pass
 
         for link_data in layout_dict["links"]:
             self.links.new(*get_sockets(self, link_data, names_remap))
