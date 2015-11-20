@@ -23,9 +23,10 @@ def compile(layout_dict):
     # get nodes without any outputs
     root_nodes = layout_dict["nodes"].keys() - {l[0] for l in layout_dict["links"]}
 
-    out = [ExecNode(root_node, layout_dict) in root_nodes]
+    out = [ExecNode(root_node, layout_dict) for root_node in root_nodes]
     for node in out:
         create_graph(node, layout_dict)
+    return out
 
 
 class GraphNode():
