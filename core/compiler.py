@@ -1,5 +1,3 @@
-import collections
-import itertools
 import SverchokRedux.nodes
 
 
@@ -22,11 +20,12 @@ def compile(layout_dict):
             else:
                 node.add_child(ValueNode(node.name + "." + socket_name, socket_data["default_value"]))
 
+    # get nodes without any outputs
     root_nodes = layout_dict["nodes"].keys() - {l[0] for l in layout_dict["links"]}
-    for root_node in root_nodes:
-        node = ExecNode(root_node, layout_dict)
+
+    out = [ExecNode(root_node, layout_dict) in root_nodes]
+    for node in out:
         create_graph(node, layout_dict)
-        return node
 
 
 class GraphNode():
@@ -66,7 +65,6 @@ class ExecNode(GraphNode):
         self.func = SverchokRedux.nodes.node_dict[bl_idname].func
 
     def execute(self):
-        print("Entering {}".format(self.name))
         for child in self.children:
             child.execute()
         args = [child.value for child in self.children]
