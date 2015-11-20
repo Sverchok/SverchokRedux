@@ -2,32 +2,6 @@ import collections
 import itertools
 import SverchokRedux.nodes
 
-"""
-def compile(layout_dict):
-    nodes = layout_dict["nodes"]
-    links = layout_dict["links"]
-    dependencies = {"{}.{}".format(t_n,t_s): f_n for f_n,f_s,t_n,t_s in links}
-
-    node_stack = collections.deque()
-
-    node = next(iter(nodes))
-
-    node_stack.push(node)
-
-    order = []
-
-    while node_stack:
-        node_data = nodes[node]
-        for socket_data in inputs:
-            socket = socket_data["name"]
-            node_socket = "{}.{}".format(node, socket)
-            up_node = dependencies.get(node_socket, None)
-            if up_node and up_node not in order:
-                node_stack.push(up_node)
-                node = up_node
-                break
-        else:
-"""
 
 def compile(layout_dict):
     def create_graph(node, layout_dict, graph_dict={}):
@@ -84,12 +58,12 @@ class ValueNode(GraphNode):
     def execute(self):
         pass
 
+
 class ExecNode(GraphNode):
     def __init__(self, name, layout_dict):
         super().__init__(name)
         bl_idname = layout_dict["nodes"][name]["bl_idname"]
         self.func = SverchokRedux.nodes.node_dict[bl_idname].func
-
 
     def execute(self):
         print("Entering {}".format(self.name))
