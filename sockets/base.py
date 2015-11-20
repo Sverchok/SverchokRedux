@@ -11,5 +11,5 @@ class SvRxSocketBase(object):
 
     def load(self, socket_dict):
         value = socket_dict["default_value"]
-        if not value is None:
+        if value is not None:
             self.default_value = value
