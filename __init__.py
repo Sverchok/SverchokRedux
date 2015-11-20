@@ -43,15 +43,14 @@ bl_info = {
     "category": "Node"}
 
 import importlib
-import sys
 
 imported_modules = []
 
 # ugly hack, should make respective dict in __init__ like nodes
 # or parse it
 root_modules = ["core", "util", "ui", "nodes", "sockets"]
-core_modules = ["compiler", "node", "nodetree", "socket"]
-ui_modules = ["menu"]
+core_modules = ["compiler", ]
+ui_modules = ["menu", "node", "nodetree"]
 util_modules = ["lib"]
 nodes_mods = ["math", "debug"]
 math_mods = ["linspace", "arange", "add"]

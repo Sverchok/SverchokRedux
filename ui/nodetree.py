@@ -1,9 +1,11 @@
 from bpy.types import NodeTree
+from SverchokRedux.core import compiler
 
 
 def get_link(link):
     return (link.from_node.name, link.from_socket.name,
             link.to_node.name, link.to_socket.name)
+
 
 def get_sockets(ng, link_data, names_remap):
     from_node = ng.nodes[names_remap.get(link_data[0], link_data[0])]
@@ -21,6 +23,14 @@ class SverchCustomTree(NodeTree):
 
     def update(self):
         pass
+
+    def execute(self):
+        roots = self.compile()
+        for root_node in roots:
+            root_node.execute()
+
+    def compile(self):
+        return compiler.compile(self.serialize())
 
     def serialize(self):
         layout_dict = {"name": self.name}
