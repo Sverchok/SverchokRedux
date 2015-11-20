@@ -2,9 +2,10 @@ from SverchokRedux.core.node import node_factory_from_func
 import bpy
 import collections
 
-NodeData = collections.namedtuple("NodeData",['cls','func'])
+NodeData = collections.namedtuple("NodeData", ['cls', 'func'])
 
 node_dict = {}
+
 
 def load_nodes():
     # this should really be either automatic or more organized
