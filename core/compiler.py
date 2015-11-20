@@ -61,6 +61,7 @@ class GraphNode():
         self.children = []
 
     def __iter__(self):
+
         for child in self.children:
             for node in child:
                 yield node
@@ -80,6 +81,9 @@ class ValueNode(GraphNode):
     def add_child(self, child):
         pass
 
+    def execute(self):
+        pass
+
 class ExecNode(GraphNode):
     def __init__(self, name, layout_dict):
         super().__init__(name)
@@ -91,7 +95,8 @@ class ExecNode(GraphNode):
         print("Entering {}".format(self.name))
         for child in self.children:
             child.execute()
-        self._process()
+        args = [child.value for child in self.children]
+        self.value = self.func(*args)
 
 
 class IfNode(GraphNode):
