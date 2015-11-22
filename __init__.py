@@ -43,47 +43,40 @@ bl_info = {
     "category": "Node"}
 
 import importlib
-
-imported_modules = []
-
-# ugly hack, should make respective dict in __init__ like nodes
-# or parse it
-root_modules = ["core", "util", "ui", "nodes", "sockets"]
-core_modules = ["compiler", ]
-ui_modules = ["menu", "node", "nodetree"]
-util_modules = ["lib"]
-nodes_mods = ["math", "debug"]
-math_mods = ["linspace", "arange", "add"]
-debug_nodes = ["debugprint"]
-socket_mods = ["float", "int", "generic", "base"]
-
-# modules and pkg path, nodes are done separately.
-mods_bases = [(root_modules, "SverchokRedux"),
-              (core_modules, "SverchokRedux.core"),
-              (util_modules, "SverchokRedux.util"),
-              (ui_modules, "SverchokRedux.ui"),
-              (nodes_mods, "SverchokRedux.nodes"),
-              (math_mods, "SverchokRedux.nodes.math"),
-              (socket_mods, "SverchokRedux.sockets"),
-              (debug_nodes, "SverchokRedux.nodes.debug")
-              ]
+import pkgutil
 
 
-def import_modules(modules, base, im_list):
-    for m in modules:
-        im = importlib.import_module('.{}'.format(m), base)
-        im_list.append(im)
+# Recursive auto import,
+# http://stackoverflow.com/a/25562415
 
-for mods, base in mods_bases:
-    import_modules(mods, base, imported_modules)
+def import_submodules(package, recursive=True):
+    """ Import all submodules of a module, recursively, including subpackages
 
-nodes.load_nodes()
+    :param package: package (name or actual module)
+    :type package: str | module
+    :rtype: dict[str, types.ModuleType]
+    """
+    if isinstance(package, str):
+        package = importlib.import_module(package)
+    results = {}
+    for loader, name, is_pkg in pkgutil.walk_packages(package.__path__):
+        print(name)
+        full_name = package.__name__ + '.' + name
+        results[full_name] = importlib.import_module(full_name)
+        if recursive and is_pkg:
+            results.update(import_submodules(full_name))
+    return results
+
+
+imported_modules = import_submodules(__name__)
+
+nodes.load_nodes(imported_modules)
 
 reload_event = bool("bpy" in locals())
 
 if reload_event:
     print("reloading")
-    for im in imported_modules:
+    for im in imported_modules.values():
         importlib.reload(im)
     nodes.load_nodes()
     ui.menu.reload_menu()
@@ -93,7 +86,7 @@ import bpy
 
 def register():
 
-    for m in imported_modules:
+    for m in imported_modules.values():
         if hasattr(m, "register"):
             m.register()
     bpy.utils.register_module(__name__)
@@ -103,7 +96,7 @@ def register():
 
 def unregister():
     bpy.utils.unregister_module(__name__)
-    # still needed, see register()
-    for m in reversed(imported_modules):
+
+    for m in reversed(imported_modules).values():
         if hasattr(m, "unregister"):
             m.unregister()

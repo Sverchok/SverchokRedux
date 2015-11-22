@@ -19,7 +19,7 @@
 
 import bpy
 from ..core.node import SvRxNode
-from collections import OrderedDict
+from ..nodes import node_dict
 
 from collections import OrderedDict, defaultdict
 
@@ -36,12 +36,15 @@ class SvRxNodeCategory(NodeCategory):
 
 def make_node_cats():
 
-    node_cats = OrderedDict()
-    nodes = SvRxNode.__subclasses__()
     # category information should be created here
-    cats = ["math"]
+    node_cats = OrderedDict()
+    cats = set(node_data.category for node_data in node_dict.values())
+
     for cat in sorted(cats):
-        node_cats[cat.title()] = [(node.bl_idname, node.bl_label) for node in nodes]
+        nodes = [nd for nd in node_dict.values() if nd.category == cat]
+        node_cat = sorted([(nd.cls.bl_idname, nd.cls.bl_label) for nd in nodes], key=lambda x: x[1])
+        node_cats[cat.title()] = node_cat
+
     return node_cats
 
 
