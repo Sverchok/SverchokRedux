@@ -60,7 +60,6 @@ def import_submodules(package, recursive=True):
         package = importlib.import_module(package)
     results = {}
     for loader, name, is_pkg in pkgutil.walk_packages(package.__path__):
-        print(name)
         full_name = package.__name__ + '.' + name
         results[full_name] = importlib.import_module(full_name)
         if recursive and is_pkg:
@@ -75,10 +74,10 @@ nodes.load_nodes(imported_modules)
 reload_event = bool("bpy" in locals())
 
 if reload_event:
-    print("reloading")
+    print("SvRx reloading")
     for im in imported_modules.values():
         importlib.reload(im)
-    nodes.load_nodes()
+    nodes.load_nodes(imported_modules)
     ui.menu.reload_menu()
 
 import bpy

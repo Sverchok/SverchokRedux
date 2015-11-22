@@ -8,6 +8,7 @@ node_dict = {}
 
 
 def load_nodes(imported_modules):
+    node_dict.clear()
     nodes = {name: module for name, module in imported_modules.items() if name.startswith("SverchokRedux.nodes.")}
     for name, module in nodes.items():
         if hasattr(module, "SvRxFunc"):
