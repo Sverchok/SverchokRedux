@@ -67,6 +67,9 @@ class GraphNode():
     def add_child(self, child):
         self.children.append(child)
 
+    def execute(self, visited=set()):
+        print(self.name)
+
 
 class ValueNode(GraphNode):
     def __init__(self, name, value):
@@ -74,12 +77,6 @@ class ValueNode(GraphNode):
         self.name = name
         self.value = np.array([value])
         self.children = []
-
-    def add_child(self, child):
-        pass
-
-    def execute(self, visited=set()):
-        pass
 
 
 class ExecNode(GraphNode):
@@ -93,18 +90,21 @@ class ExecNode(GraphNode):
         gen = (child for child in self.children if child not in visited)
         for child in gen:
             child.execute(visited)
+        # this is to simplistic
         args = match_length([child.value for child in self.children])
         self.value = self.func(*args)
-
+        print(self.name)
 
 class IfNode(GraphNode):
 
     def execute(self, visited=set()):
         self.children[0].execute(visited)
-        #
+        # needs to be more clever 
         if self.children[0].value:
             for child in self.children[1]:
                 child.execute(visited)
+            self.value = self.children[1].value
         else:
             for child in self.children[2]:
                 child.execute(visited)
+            self.value = self.children[2].value
