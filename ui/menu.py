@@ -19,7 +19,7 @@
 
 import bpy
 from ..core.node import SvRxNode
-from ..nodes import node_dict
+from ..nodes import _node_dict as node_dict
 
 from collections import OrderedDict, defaultdict
 

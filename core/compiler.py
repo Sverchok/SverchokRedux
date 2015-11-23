@@ -1,5 +1,6 @@
-import SverchokRedux.nodes.node_dict as node_dict
+import SverchokRedux.nodes as nodes
 import numpy as np
+from itertools import repeat
 
 
 def create_graph(node, layout_dict, graph_dict={}):
@@ -49,6 +50,30 @@ def match_length(args):
             out.append(arg)
     return out
 
+
+# f(a0, a1, ..., aN) -> x
+
+
+def recursive_map(func, args, inputs_types, level=0):
+    checked = [isinstance(arg, types) for arg, types in zip(args, inputs_types)]
+    #print(checked, args, inputs_types, level, [type(a) for a in args])
+
+    if all(checked):
+        return func(*args)
+    if any(checked):
+        new_args = [repeat(arg) if check else arg for check, arg in zip(checked, args)]
+    else:
+        new_args = args
+
+    return [recursive_map(func, arg, inputs_types, level + 1) for arg in zip(*new_args)]
+
+
+def expand_types(t):
+    return {float: (float, np.float64),
+            int: (int, np.int64, np.int32),
+            list: (list, tuple),
+            }.get(t, t)
+
 def get_graph_cls(bl_idname):
     """
     return the node class from corressponding bl_idname
@@ -63,6 +88,7 @@ class GraphNode():
         self.name = name
         self.children = []
         self.value = None
+        self.offsets = []
 
     def __iter__(self):
         for child in self.children:
@@ -79,18 +105,22 @@ class GraphNode():
         node = nodes[start_node]
         bl_idname = node["bl_idname"]
         new_cls = get_graph_cls(bl_idname)
+        node = new_cls(start_node, layout_dict)
+        create_graph(node, layout_dict)
+        return node
+
 
     def get_value(self, offset=None):
-        return child.value if offset is None else child.value[offset]
+        return self.value if offset is None else self.value[offset]
 
     def print_tree(self, level=0, visited=set()):
-        visited.add(node)
-        print('\t' * level + repr(node.name) + str(type(node)))
-        for child in node.children:
+        visited.add(self)
+        print('\t' * level + repr(self.name) + str(type(self)))
+        for child in self.children:
             if child not in visited:
-                other_name(child, level + 1, visited)
+                child.print_tree(level + 1, visited)
 
-    def add_child(self, child, offset):
+    def add_child(self, child, offset = None):
         self.children.append(child)
         self.offsets.append(offset)
 
@@ -110,7 +140,9 @@ class ExecNode(GraphNode):
     def __init__(self, name, layout_dict):
         super().__init__(name)
         bl_idname = layout_dict["nodes"][name]["bl_idname"]
-        self.func = SverchokRedux.nodes.node_dict[bl_idname].func
+        node_data = nodes.get_node_data(bl_idname)
+        self.func = node_data.func
+        self.inputs_types = [expand_types(i[0]) for i in node_data.inputs]
 
     def execute(self, visited=set()):
         visited.add(self)
@@ -119,9 +151,10 @@ class ExecNode(GraphNode):
             child.execute(visited)
         # this is to simplistic
 
-        args = [child.get_value(offset) for child, offset in zip(self.children, self.offset)]
+        args = [child.get_value(offset) for child, offset in zip(self.children, self.offsets)]
+        self.value = recursive_map(self.func, args, self.inputs_types)
 
-        self.value = self.func(*args)
+        #self.value = self.func(*args)
 
 
 class IfNode(GraphNode):

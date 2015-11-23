@@ -27,6 +27,9 @@ class SvRxNode:
         if self.outputs_template:
             for socket_type, name, args in self.outputs_template:
                 self.outputs.new(socket_type, name)
+                if "default_value" in args:
+                    s.default_value = args["default_value"]
+
 
     def update(self):
         pass
