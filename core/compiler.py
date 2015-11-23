@@ -55,8 +55,13 @@ def match_length(args):
 
 
 def recursive_map(func, args, inputs_types, level=0):
+    # print(args, inputs_types, level, [type(a) for a in args])
+
+    if level == 0 and isinstance(args, inputs_types[0]):
+        return func(*args)
+
     checked = [isinstance(arg, types) for arg, types in zip(args, inputs_types)]
-    #print(checked, args, inputs_types, level, [type(a) for a in args])
+    # print(checked, args, inputs_types, level, [type(a) for a in args])
 
     if all(checked):
         return func(*args)
@@ -125,14 +130,15 @@ class GraphNode():
         self.offsets.append(offset)
 
     def execute(self, visited=set()):
-        print(self.name)
+        pass
+        #print(self.name)
 
 
 class ValueNode(GraphNode):
     def __init__(self, name, value):
         # socket name
         self.name = name
-        self.value = np.array([value])
+        self.value = value
         self.children = []
 
 
