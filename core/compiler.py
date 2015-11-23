@@ -14,7 +14,10 @@ def compile(layout_dict):
                 from_node_name = links[socket_name]
                 from_node = graph_dict.get(from_node_name)
                 if not from_node:
-                    from_node = ExecNode(from_node_name, layout_dict)
+                    if 'SvRxNodeif_node' == nodes[from_node_name]["bl_idname"]:
+                        from_node = IfNode(from_node_name)
+                    else:
+                        from_node = ExecNode(from_node_name, layout_dict)
                     graph_dict[from_node.name] = from_node
                     create_graph(from_node, layout_dict, graph_dict)
                 node.add_child(from_node)
@@ -53,9 +56,9 @@ class GraphNode():
     def __init__(self, name):
         self.name = name
         self.children = []
+        self.value = None
 
     def __iter__(self):
-
         for child in self.children:
             for node in child:
                 yield node
@@ -63,6 +66,13 @@ class GraphNode():
 
     def __hash__(self):
         return hash(self.name)
+
+    def print_tree(self, level=0, visited=set()):
+        visited.add(node)
+        print('\t' * level + repr(node.name) + str(type(node)))
+        for child in node.children:
+            if child not in visited:
+                other_name(child, level + 1, visited)
 
     def add_child(self, child):
         self.children.append(child)
@@ -93,18 +103,36 @@ class ExecNode(GraphNode):
         # this is to simplistic
         args = match_length([child.value for child in self.children])
         self.value = self.func(*args)
-        print(self.name)
+
 
 class IfNode(GraphNode):
 
     def execute(self, visited=set()):
+        visited.add(self)
+
+        def get_value(val):
+            if isinstance(val, (list, type(np.array([0])))) and val:
+                return get_value(val[0])
+            return val
+
         self.children[0].execute(visited)
-        # needs to be more clever 
-        if self.children[0].value:
-            for child in self.children[1]:
-                child.execute(visited)
+        # needs to be more clever
+
+        if get_value(self.children[0].value):
+            self.children[1].execute(visited)
             self.value = self.children[1].value
         else:
-            for child in self.children[2]:
-                child.execute(visited)
+            self.children[2].execute(visited)
             self.value = self.children[2].value
+
+class GroupInNode(GraphNode):
+    pass
+
+class GroupOutNode(GraphNode):
+    pass
+
+class ForNode(GraphNode):
+    pass
+
+class WhileNode(GraphNode):
+    pass
