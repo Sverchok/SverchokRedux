@@ -1,36 +1,34 @@
-import SverchokRedux.nodes
+import SverchokRedux.nodes.node_dict as node_dict
 import numpy as np
 
 
-def compile(layout_dict):
-    def create_graph(node, layout_dict, graph_dict={}):
-        nodes = layout_dict["nodes"]
-        node_data = nodes[node.name]
-        links = {to_socket: from_node for from_node, from_socket, to_node, to_socket in layout_dict["links"]
-                 if to_node == node.name}
-        for socket_data in node_data["inputs"]:
-            socket_name = socket_data["name"]
-            if socket_data["is_linked"]:
-                from_node_name = links[socket_name]
-                from_node = graph_dict.get(from_node_name)
-                if not from_node:
-                    if 'SvRxNodeif_node' == nodes[from_node_name]["bl_idname"]:
-                        from_node = IfNode(from_node_name)
-                    else:
-                        from_node = ExecNode(from_node_name, layout_dict)
-                    graph_dict[from_node.name] = from_node
-                    create_graph(from_node, layout_dict, graph_dict)
-                node.add_child(from_node)
-            else:
-                node.add_child(ValueNode(node.name + "." + socket_name, socket_data["default_value"]))
+def create_graph(node, layout_dict, graph_dict={}):
+    nodes = layout_dict["nodes"]
+    node_data = nodes[node.name]
+    links = {to_socket: from_node for from_node, from_socket, to_node, to_socket in layout_dict["links"]
+             if to_node == node.name}
+    for socket_data in node_data["inputs"]:
+        socket_name = socket_data["name"]
+        if socket_data["is_linked"]:
+            from_node_name = links[socket_name]
+            from_node = graph_dict.get(from_node_name)
+            if not from_node:
+                cls = get_graph_cls(nodes[from_node_name]["bl_idname"])
+                from_node = cls(from_node_name, layout_dict)
+                graph_dict[from_node.name] = from_node
+                create_graph(from_node, layout_dict, graph_dict)
+            node.add_child(from_node)
+        else:
+            node.add_child(ValueNode(node.name + "." + socket_name, socket_data["default_value"]))
 
+
+def compile(layout_dict):
     # get nodes without any outputs
     root_nodes = layout_dict["nodes"].keys() - {l[0] for l in layout_dict["links"]}
 
-    out = [ExecNode(root_node, layout_dict) for root_node in root_nodes]
-    for node in out:
-        create_graph(node, layout_dict)
+    out = [GraphNode.from_layout(root_node, layout_dict) for root_node in root_nodes]
     return out
+
 
 # this should be moved to an execute module I guess...
 
@@ -51,9 +49,17 @@ def match_length(args):
             out.append(arg)
     return out
 
+def get_graph_cls(bl_idname):
+    """
+    return the node class from corressponding bl_idname
+    """
+    cls_table = {
+        "SvRxNodeif_node": IfNode,
+    }
+    return cls_table.get(bl_idname, ExecNode)
 
 class GraphNode():
-    def __init__(self, name):
+    def __init__(self, name, layout_dict={}):
         self.name = name
         self.children = []
         self.value = None
@@ -67,6 +73,16 @@ class GraphNode():
     def __hash__(self):
         return hash(self.name)
 
+    @classmethod
+    def from_layout(cls, start_node, layout_dict):
+        nodes = layout_dict["nodes"]
+        node = nodes[start_node]
+        bl_idname = node["bl_idname"]
+        new_cls = get_graph_cls(bl_idname)
+
+    def get_value(self, offset=None):
+        return child.value if offset is None else child.value[offset]
+
     def print_tree(self, level=0, visited=set()):
         visited.add(node)
         print('\t' * level + repr(node.name) + str(type(node)))
@@ -74,8 +90,9 @@ class GraphNode():
             if child not in visited:
                 other_name(child, level + 1, visited)
 
-    def add_child(self, child):
+    def add_child(self, child, offset):
         self.children.append(child)
+        self.offsets.append(offset)
 
     def execute(self, visited=set()):
         print(self.name)
@@ -101,7 +118,9 @@ class ExecNode(GraphNode):
         for child in gen:
             child.execute(visited)
         # this is to simplistic
-        args = match_length([child.value for child in self.children])
+
+        args = [child.get_value(offset) for child, offset in zip(self.children, self.offset)]
+
         self.value = self.func(*args)
 
 
@@ -125,14 +144,18 @@ class IfNode(GraphNode):
             self.children[2].execute(visited)
             self.value = self.children[2].value
 
+
 class GroupInNode(GraphNode):
     pass
+
 
 class GroupOutNode(GraphNode):
     pass
 
+
 class ForNode(GraphNode):
     pass
+
 
 class WhileNode(GraphNode):
     pass
