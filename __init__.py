@@ -96,6 +96,6 @@ def register():
 def unregister():
     bpy.utils.unregister_module(__name__)
 
-    for m in reversed(imported_modules).values():
+    for m in reversed(list(imported_modules.values())):
         if hasattr(m, "unregister"):
             m.unregister()
