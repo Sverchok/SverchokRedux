@@ -9,7 +9,7 @@ def Socket(s_type, name, **kwargs):
     #  2 match to specific subtype
     type_dict = {int: "SvRxIntSocket",
                  float: "SvRxFloatSocket",
-                 np.array: "SvRxFloatSocket",
+                 np.ndarray: "SvRxFloatSocket",
                  list: "SvRxGenericSocket",
                  }
     return type_dict[s_type], name, kwargs
