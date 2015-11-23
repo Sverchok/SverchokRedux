@@ -1,6 +1,7 @@
 import numpy as np
 
-def add(x: np.array = 0.0, y: np.array = 1.0) -> [("res", np.array)]:
+
+def add(x: np.ndarray = 0.0, y: np.ndarray = 1.0) -> [("res", np.ndarray)]:
     return x + y
 
 SvRxFunc = [add]
