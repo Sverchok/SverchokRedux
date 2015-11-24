@@ -58,8 +58,8 @@ class SvRxNode:
         node_dict['color'] = self.color[:]
         node_dict['use_custom_color'] = self.use_custom_color
 
-        node_dict['inputs'] = [s.serialize() for s in self.inputs]
-        node_dict['outputs'] = [s.serialize() for s in self.outputs]
+        node_dict['inputs'] = [s.serialize(i) for i, s in enumerate(self.inputs)]
+        node_dict['outputs'] = [s.serialize(i) for i, s in enumerate(self.outputs)]
 
         return node_dict
 
