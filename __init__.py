@@ -29,6 +29,9 @@
 #
 # -*- coding: utf-8 -*-
 
+import importlib
+import pkgutil
+
 bl_info = {
     "name": "SverchokRedux",
     "author":
@@ -41,9 +44,6 @@ bl_info = {
     "wiki_url": "",
     "tracker_url": "https://github.com/nortikin/sverchok/issues/688",
     "category": "Node"}
-
-import importlib
-import pkgutil
 
 
 # Recursive auto import,
@@ -80,6 +80,7 @@ if reload_event:
     nodes.load_nodes(imported_modules)
     ui.menu.reload_menu()
 
+# this is used as a marker for reload
 import bpy
 
 
