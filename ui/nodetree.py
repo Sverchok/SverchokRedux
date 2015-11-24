@@ -40,7 +40,7 @@ class SverchCustomTree(NodeTree):
             if hasattr(node, "serialize"): # SvRx Nodes
                 nodes.append((node.name, node.serialize()))
             else:
-                nodes.append(SvRxNode.serialize(node))
+                nodes.append((node.name , SvRxNode.serialize(node)))
 
         layout_dict["nodes"] = dict(nodes)
         layout_dict["links"] = [get_link(l) for l in self.links]
