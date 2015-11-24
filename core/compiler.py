@@ -2,6 +2,20 @@ import SverchokRedux.nodes as nodes
 import numpy as np
 from itertools import repeat
 
+def proprocess(layout_dict):
+    reroutes = [node for node in layout_dict["nodes"] if node["bl_idname"] == 'NodeReroute']
+    nodes = layout_dict["nodes"]
+    links = layout_dict["links"]
+    for reroute in reroutes:
+        from_node = [(f_n, f_s) for f_n, f_s, t_n, t_s in links if t_n == reroute]
+        to_nodes = [(t_n, t_s) for f_n, f_s, t_n, t_s in links if f_n == reroute]
+        if len(from_node) == 1:
+            from_node = from_node[0]
+            for to_node in to_nodes:
+                links.append(tuple(from_node + to_node))
+            
+
+
 
 def create_graph(node, layout_dict, graph_dict={}):
     def get_socket_index(name, socket_list):
