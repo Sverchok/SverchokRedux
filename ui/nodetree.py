@@ -1,5 +1,6 @@
 from bpy.types import NodeTree
 from SverchokRedux.core import compiler
+from . import node as SvRxNode
 
 
 def get_link(link):
@@ -22,7 +23,7 @@ class SverchCustomTree(NodeTree):
     bl_icon = 'GHOST_ENABLED'
 
     def update(self):
-        pass
+        self.execute()
 
     def execute(self):
         roots = self.compile()
@@ -34,7 +35,14 @@ class SverchCustomTree(NodeTree):
 
     def serialize(self):
         layout_dict = {"name": self.name}
-        layout_dict["nodes"] = {node.name: node.serialize() for node in self.nodes}
+        nodes = []
+        for node in self.nodes:
+            if hasattr(node, "serialize"): # SvRx Nodes
+                nodes.append((node.name, node.serialize()))
+            else:
+                nodes.append(SvRxNode.serialize(node))
+
+        layout_dict["nodes"] = dict(nodes)
         layout_dict["links"] = [get_link(l) for l in self.links]
         return layout_dict
 

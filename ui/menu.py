@@ -36,7 +36,6 @@ class SvRxNodeCategory(NodeCategory):
 
 def make_node_cats():
 
-    # category information should be created here
     node_cats = OrderedDict()
     cats = set(node_data.category for node_data in node_dict.values())
 

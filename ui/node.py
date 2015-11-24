@@ -1,5 +1,44 @@
 from bpy.types import EnumProperty
+from . import socket as SvRxSocket
 
+
+def serialize(node):
+    node_dict = {}
+    node_items = {}
+    node_enums = find_enumerators(node)
+
+    for k, v in node.items():
+        if isinstance(v, (float, int, str)):
+            node_items[k] = v
+        else:
+            node_items[k] = v[:]
+        if k in node_enums:
+            v = getattr(node, k)
+            node_items[k] = v
+
+    node_dict['params'] = node_items
+    node_dict['location'] = node.location[:]
+    node_dict['bl_idname'] = node.bl_idname
+    node_dict['height'] = node.height
+    node_dict['width'] = node.width
+    node_dict['label'] = node.label
+    node_dict['hide'] = node.hide
+    node_dict['color'] = node.color[:]
+    node_dict['use_custom_color'] = node.use_custom_color
+
+    def get_sockets(socket_list):
+        out = []
+        for socket in socket_list:
+            if hasattr(socket, "serialize"):
+                out.append(socket.serialize())
+            else:
+                out.append(SvRxSocket.serialize(socket))
+        return out
+
+    node_dict['inputs'] = get_sockets(node.inputs)
+    node_dict['outputs'] = get_sockets(node.outputs)
+
+    return node_dict
 
 def find_enumerators(node):
     """
@@ -35,33 +74,7 @@ class SvRxNode:
         pass
 
     def serialize(self):
-        node_dict = {}
-        node_items = {}
-        node_enums = find_enumerators(self)
-
-        for k, v in self.items():
-            if isinstance(v, (float, int, str)):
-                node_items[k] = v
-            else:
-                node_items[k] = v[:]
-            if k in node_enums:
-                v = getattr(self, k)
-                node_items[k] = v
-
-        node_dict['params'] = node_items
-        node_dict['location'] = self.location[:]
-        node_dict['bl_idname'] = self.bl_idname
-        node_dict['height'] = self.height
-        node_dict['width'] = self.width
-        node_dict['label'] = self.label
-        node_dict['hide'] = self.hide
-        node_dict['color'] = self.color[:]
-        node_dict['use_custom_color'] = self.use_custom_color
-
-        node_dict['inputs'] = [s.serialize(i) for i, s in enumerate(self.inputs)]
-        node_dict['outputs'] = [s.serialize(i) for i, s in enumerate(self.outputs)]
-
-        return node_dict
+        return serialize(self)
 
     def load(self, node_data):
         # needs more details
