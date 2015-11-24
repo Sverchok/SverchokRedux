@@ -1,0 +1,197 @@
+import numpy as np
+from itertools import repeat
+from .compiler import create_graph
+import SverchokRedux.nodes as nodes
+
+
+def match_length(args):
+    lengths = [len(arg) for arg in args]
+    if lengths.count(lengths[0]) == len(lengths):
+        return args
+    max_len = max(lengths)
+    out = []
+    for arg, length in zip(args, lengths):
+        if length < max_len:
+            new_arg = np.zeros(max_len)
+            new_arg[:length] = arg
+            new_arg[length:] = arg[-1]
+            out.append(new_arg)
+        else:
+            out.append(arg)
+    return out
+
+type_table = {
+    (float, int): int,
+    (float, np.ndarray): lambda n: np.array([n]),
+    (int, np.ndarray): lambda n: np.array([n]),
+}
+
+
+def expand_types(t):
+    return {float: (float, np.float64, int, np.int64, np.int32),
+            int: (int, np.int64, np.int32),
+            list: (list, tuple),
+            }.get(t, (t,))
+
+
+def convert_type(value, to_type):
+    value_type = type(value)
+    for f, t in type_table.keys():
+        print(f, t)
+    value_type = type(value)
+    for t_t in to_type:
+        f = type_table.get((value_type, t_t))
+        if f:
+            print("found type", t_t)
+            return f(value)
+
+    return value
+
+# f(a0, a1, ..., aN) -> x
+
+
+def recursive_map(func, args, inputs_types, level=0):
+    outputs = 0
+    if func.outputs:
+        outputs = len(func.outputs)
+
+    if level == 0 and isinstance(args, inputs_types[0]):
+        return func(*args)
+    # print(args)
+    # args = [convert_type(arg, inputs_types) for arg in args]
+    checked = [isinstance(arg, types) for arg, types in zip(args, inputs_types)]
+    # print(func.__name__, checked, args, inputs_types, level, [type(a) for a in args])
+
+    if all(checked):
+        return func(*args)
+    if any(checked):
+        new_args = [repeat(arg) if check else arg for check, arg in zip(checked, args)]
+    else:
+        new_args = args
+
+    res = [recursive_map(func, arg, inputs_types, level + 1) for arg in zip(*new_args)]
+    if outputs < 2:
+        return res
+    return list(zip(*res))
+
+
+def get_graph_cls(bl_idname):
+    """
+    return the node class from corressponding bl_idname
+    """
+    cls_table = {
+        "SvRxNodeif_node": IfNode,
+    }
+    return cls_table.get(bl_idname, ExecNode)
+
+
+class GraphNode():
+    def __init__(self, name, layout_dict={}):
+        self.name = name
+        self.children = []
+        self.value = None
+        self.offsets = []
+
+    def __iter__(self):
+        for child in self.children:
+            for node in child:
+                yield node
+        yield self
+
+    def __hash__(self):
+        return hash(self.name)
+
+    @classmethod
+    def from_layout(cls, start_node, layout_dict, graph_dict):
+        nodes = layout_dict["nodes"]
+        node = nodes[start_node]
+        bl_idname = node["bl_idname"]
+        new_cls = get_graph_cls(bl_idname)
+        node = new_cls(start_node, layout_dict)
+        create_graph(node, layout_dict, graph_dict)
+        return node
+
+    def get_value(self, offset=None):
+        if offset is None:
+            return self.value
+        else:
+            return self.value[offset]
+
+    def print_tree(self, level=0, visited=set()):
+        visited.add(self)
+        print('\t' * level + repr(self.name) + str(type(self)))
+        for child in self.children:
+            if child not in visited:
+                child.print_tree(level + 1, visited)
+
+    def add_child(self, child, offset=None):
+        self.children.append(child)
+        self.offsets.append(offset)
+
+    def execute(self, visited=set()):
+        pass
+        # print(self.name)
+
+
+class ValueNode(GraphNode):
+    def __init__(self, name, value):
+        # socket name
+        self.name = name
+        self.value = np.array([value])
+        self.children = []
+
+
+class ExecNode(GraphNode):
+    def __init__(self, name, layout_dict):
+        super().__init__(name)
+        bl_idname = layout_dict["nodes"][name]["bl_idname"]
+        node_data = nodes.get_node_data(bl_idname)
+        self.func = node_data.func
+        self.inputs_types = [expand_types(i[0]) for i in node_data.inputs]
+
+    def execute(self, visited=set()):
+        visited.add(self)
+        gen = (child for child in self.children if child not in visited)
+        for child in gen:
+            child.execute(visited)
+
+        args = [child.get_value(offset) for child, offset in zip(self.children, self.offsets)]
+        self.value = recursive_map(self.func, args, self.inputs_types)
+        # print(self.value)
+
+
+class IfNode(GraphNode):
+
+    def execute(self, visited=set()):
+        visited.add(self)
+
+        def get_value(val):
+            if isinstance(val, (list, type(np.array([0])))) and val:
+                return get_value(val[0])
+            return val
+
+        self.children[0].execute(visited)
+        # needs to be more clever
+
+        if get_value(self.children[0].value):
+            self.children[1].execute(visited)
+            self.value = self.children[1].value
+        else:
+            self.children[2].execute(visited)
+            self.value = self.children[2].value
+
+
+class GroupInNode(GraphNode):
+    pass
+
+
+class GroupOutNode(GraphNode):
+    pass
+
+
+class ForNode(GraphNode):
+    pass
+
+
+class WhileNode(GraphNode):
+    pass
