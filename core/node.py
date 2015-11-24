@@ -6,7 +6,7 @@ import collections
 from ..ui.node import SvRxNode
 
 
-NodeData = collections.namedtuple("NodeData", ['cls', 'func', 'category','inputs','outputs'])
+NodeData = collections.namedtuple("NodeData", ['cls', 'func', 'category', 'inputs', 'outputs'])
 
 
 def Socket(s_type, name, **kwargs):
