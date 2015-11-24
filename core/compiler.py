@@ -1,9 +1,6 @@
 from .execute import GraphNode
 from . import preprocess
 
-
-
-
 def compile(layout_dict):
     preprocess.proprocess(layout_dict)
     # get nodes without any outputs

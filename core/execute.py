@@ -138,7 +138,7 @@ class GraphNode():
         bl_idname = node["bl_idname"]
         new_cls = get_graph_cls(bl_idname)
         node = new_cls(start_node, layout_dict)
-        compiler.create_graph(node, layout_dict, graph_dict)
+        create_graph(node, layout_dict, graph_dict)
         return node
 
     def get_value(self, offset=None):
