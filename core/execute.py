@@ -1,7 +1,37 @@
 import numpy as np
 from itertools import repeat
-from .compiler import create_graph
 import SverchokRedux.nodes as nodes
+
+
+def create_graph(node, layout_dict, graph_dict={}):
+    def get_socket_index(name, socket_list):
+        for i, s in enumerate(socket_list):
+            if s["name"] == name:
+                return i
+        raise(ValueError("{} isn't a socket in {}".format(name, repr(socket_list))))
+
+    nodes = layout_dict["nodes"]
+    node_data = nodes[node.name]
+    links = {to_socket: (from_node, from_socket) for from_node, from_socket, to_node, to_socket in layout_dict["links"]
+             if to_node == node.name}
+    for socket_data in node_data["inputs"]:
+        socket_name = socket_data["name"]
+        if socket_data["is_linked"]:
+            from_node_name, from_socket_name = links[socket_name]
+            from_node = graph_dict.get(from_node_name)
+            if not from_node:
+                cls = get_graph_cls(nodes[from_node_name]["bl_idname"])
+                from_node = cls(from_node_name, layout_dict)
+                graph_dict[from_node.name] = from_node
+                create_graph(from_node, layout_dict, graph_dict)
+
+            if len(nodes[from_node_name]["outputs"]) > 1:
+                offset = get_socket_index(from_socket_name, nodes[from_node_name]["outputs"])
+            else:
+                offset = None
+            node.add_child(from_node, offset)
+        else:
+            node.add_child(ValueNode(node.name + "." + socket_name, socket_data["default_value"]))
 
 
 def match_length(args):
@@ -108,7 +138,7 @@ class GraphNode():
         bl_idname = node["bl_idname"]
         new_cls = get_graph_cls(bl_idname)
         node = new_cls(start_node, layout_dict)
-        create_graph(node, layout_dict, graph_dict)
+        compiler.create_graph(node, layout_dict, graph_dict)
         return node
 
     def get_value(self, offset=None):

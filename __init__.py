@@ -36,7 +36,7 @@ bl_info = {
     "name": "SverchokRedux",
     "author":
         "ly29",
-    "version": (0, 6, 0, 2),
+    "version": (0, 6, 1, 0),
     "blender": (2, 7, 6),
     "location": "Nodes > Ghost > Add user nodes",
     "description": "Parametric node-based geometry programming",
