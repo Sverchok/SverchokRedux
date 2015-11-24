@@ -2,7 +2,6 @@ import bpy
 import bmesh
 import numpy as np
 
-SvRxFunc = [to_mesh]
 
 def to_mesh(vertices: np.ndarray) -> None:
     make_bmesh_geometry(vertices)
@@ -14,6 +13,7 @@ def default_mesh(name):
     mesh_data.from_pydata(verts, [], faces)
     mesh_data.update()
     return mesh_data
+
 
 def make_bmesh_geometry(verts):
     scene = bpy.context.scene
@@ -70,3 +70,5 @@ def bmesh_from_pydata(verts=[], edges=[], faces=[]):
         bm.edges.index_update()
 
     return bm
+
+SvRxFunc = [to_mesh]
