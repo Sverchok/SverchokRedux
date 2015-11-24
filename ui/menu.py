@@ -52,10 +52,8 @@ def make_categories():
 
     node_categories = []
     node_count = 0
-    print(node_cats)
     for category, nodes in node_cats.items():
         name_big = "SVRX_" + category
-        print(nodes)
         node_categories.append(SvRxNodeCategory(
             name_big, category,
             # bl_idname, name
