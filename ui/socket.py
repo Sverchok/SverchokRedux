@@ -9,6 +9,9 @@ def serialize(socket):
                    }
     return socket_dict
 
+def execute_tree(self, context):
+    self.id_data.execute()
+
 class SvRxSocketBase(object):
     """base class for sockets """
     def serialize(self):
@@ -20,7 +23,7 @@ class SvRxSocketBase(object):
             socket.default_value = value
 
 class SvRxFloatSocket(bpy.types.NodeSocket, SvRxSocketBase):
-    default_value = bpy.props.FloatProperty()
+    default_value = bpy.props.FloatProperty(update=execute_tree)
 
     def draw(self, context, layout, node, text):
         if not self.is_linked and not self.is_output:
@@ -42,7 +45,7 @@ class SvRxGenericSocket(bpy.types.NodeSocket, SvRxSocketBase):
 
 class SvRxIntSocket(bpy.types.NodeSocket, SvRxSocketBase):
 
-    default_value = bpy.props.IntProperty(default=0)
+    default_value = bpy.props.IntProperty(default=0, update=execute_tree)
 
     def draw(self, context, layout, node, text):
         if not self.is_linked and not self.is_output:
