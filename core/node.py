@@ -51,7 +51,8 @@ def node_factory_from_func(func):
     bases = (SvRxNode, bpy.types.Node)
 
     inputs, outputs = get_signature(func)
-
+    func.inputs = inputs
+    func.outputs = outputs
     node_dict = {}
 
     node_dict["bl_idname"] = class_name

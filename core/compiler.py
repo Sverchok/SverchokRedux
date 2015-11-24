@@ -92,13 +92,16 @@ def convert_type(value, to_type):
 
 
 def recursive_map(func, args, inputs_types, level=0):
+    outputs = 0
+    if func.outputs:
+        outputs = len(func.outputs)
 
     if level == 0 and isinstance(args, inputs_types[0]):
         return func(*args)
     # print(args)
     # args = [convert_type(arg, inputs_types) for arg in args]
     checked = [isinstance(arg, types) for arg, types in zip(args, inputs_types)]
-    # print(checked, args, inputs_types, level, [type(a) for a in args])
+    # print(func.__name__, checked, args, inputs_types, level, [type(a) for a in args])
 
     if all(checked):
         return func(*args)
@@ -107,7 +110,10 @@ def recursive_map(func, args, inputs_types, level=0):
     else:
         new_args = args
 
-    return [recursive_map(func, arg, inputs_types, level + 1) for arg in zip(*new_args)]
+    res = [recursive_map(func, arg, inputs_types, level + 1) for arg in zip(*new_args)]
+    if outputs < 2:
+        return res
+    return list(zip(*res))
 
 
 def get_graph_cls(bl_idname):
@@ -147,7 +153,10 @@ class GraphNode():
         return node
 
     def get_value(self, offset=None):
-        return self.value if offset is None else self.value[offset]
+        if offset is None:
+            return self.value
+        else:
+            return self.value[offset]
 
     def print_tree(self, level=0, visited=set()):
         visited.add(self)
@@ -186,12 +195,10 @@ class ExecNode(GraphNode):
         gen = (child for child in self.children if child not in visited)
         for child in gen:
             child.execute(visited)
-        if all(isinstance(t, list) for t in self.inputs_types):
-            self.value = self.func(*args)
-        else:
-            args = [child.get_value(offset) for child, offset in zip(self.children, self.offsets)]
-            self.value = recursive_map(self.func, args, self.inputs_types)
-            # print(self.value)
+
+        args = [child.get_value(offset) for child, offset in zip(self.children, self.offsets)]
+        self.value = recursive_map(self.func, args, self.inputs_types)
+        # print(self.value)
 
 
 class IfNode(GraphNode):
