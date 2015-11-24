@@ -1,4 +1,7 @@
+import pprint
+
+
 def debug_print(data : list) -> None:
-    print(data)
+    pprint.pprint(data)
 
 SvRxFunc = [debug_print]
