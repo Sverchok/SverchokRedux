@@ -109,23 +109,25 @@ def recursive_map(func, args, inputs_types, level=0):
     is_nd = [i_t == np.ndarray for i_t in chain(*inputs_types)]
     # print(func.__name__, level, is_nd, inputs_types)
 
+    checked = [isinstance(arg, types) for arg, types in zip(args, inputs_types)]
+
     def match_id(x):
         return x
 
     if hasattr(func, 'match'):
         match = func.match
-    elif all(is_nd):
+    elif all(is_nd) and all(checked):
         match = match_length
     else:
         match = match_id
 
     # print(args)
     # args = [convert_type(arg, inputs_types) for arg in args]
-    checked = [isinstance(arg, types) for arg, types in zip(args, inputs_types)]
+
     # print(func.__name__, checked, args, inputs_types, level, [type(a) for a in args])
 
     if all(checked):
-        return func(*args)
+        return func(*match(args))
     if any(checked):
         new_args = [repeat(arg) if check else arg for check, arg in zip(checked, args)]
     else:
