@@ -107,12 +107,14 @@ def recursive_map(func, args, inputs_types, level=0):
         return func(*args)
 
     is_nd = [i_t == np.ndarray for i_t in chain(*inputs_types)]
-    print(func.__name__, level, is_nd, inputs_types)
+    # print(func.__name__, level, is_nd, inputs_types)
 
     def match_id(x):
         return x
 
-    if all(is_nd):
+    if hasattr(func, 'match'):
+        match = func.match
+    elif all(is_nd):
         match = match_length
     else:
         match = match_id

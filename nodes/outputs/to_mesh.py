@@ -3,9 +3,13 @@ import bmesh
 import numpy as np
 
 
-def to_mesh(vertices: np.ndarray) -> None:
-    make_bmesh_geometry(vertices)
+def to_mesh(vertices: np.ndarray = 0, edges: np.ndarray = 0) -> None:
+    make_bmesh_geometry(vertices, edges)
 
+to_mesh.label = "To mesh"
+to_mesh.match = lambda x: x
+
+# the below taken from bmesh/utils viewer in sverchok
 
 def default_mesh(name):
     verts, faces = [(1, 1, -1), (1, -1, -1), (-1, -1, -1)], [(0, 1, 2)]
@@ -15,13 +19,14 @@ def default_mesh(name):
     return mesh_data
 
 
-def make_bmesh_geometry(verts):
+def make_bmesh_geometry(verts, edges=None):
     scene = bpy.context.scene
     meshes = bpy.data.meshes
     objects = bpy.data.objects
     name = "svrx.to_mesh"
     vert_count = len(verts)
-    edges = list(zip(range(vert_count), range(1, vert_count)))
+    if edges is None:
+        edges = list(zip(range(vert_count), range(1, vert_count)))
 
     if name in objects:
         sv_object = objects[name]
@@ -40,7 +45,7 @@ def make_bmesh_geometry(verts):
     sv_object.hide_select = False
 
 
-def bmesh_from_pydata(verts=[], edges=[], faces=[]):
+def bmesh_from_pydata(verts=None, edges=None, faces=None):
     ''' verts is necessary, edges/faces are optional '''
 
     bm = bmesh.new()
@@ -51,13 +56,13 @@ def bmesh_from_pydata(verts=[], edges=[], faces=[]):
     if hasattr(bm.verts, "ensure_lookup_table"):
         bm.verts.ensure_lookup_table()
 
-    if faces:
+    if faces is not None:
         add_face = bm.faces.new
         for face in faces:
             add_face(tuple(bm.verts[i] for i in face))
         bm.faces.index_update()
 
-    if edges:
+    if edges is not None:
         add_edge = bm.edges.new
         for edge in edges:
             edge_seq = tuple(bm.verts[i] for i in edge)
