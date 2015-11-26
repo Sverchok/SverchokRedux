@@ -2,7 +2,7 @@
 def proprocess(layout_dict):
     """
     Clean up layout before compling
-    
+
     """
     reroutes = {name for name, node in layout_dict["nodes"].items() if node["bl_idname"] == 'NodeReroute'}
     links = layout_dict["links"]
@@ -13,7 +13,7 @@ def proprocess(layout_dict):
             from_node = from_node[0]
             for to_node in to_nodes:
                 links.append(tuple(from_node + to_node))
-            print(layout_dict["nodes"].pop(reroute))
+            layout_dict["nodes"].pop(reroute)
 
     layout_dict["links"] = [(f_n, f_s, t_n, t_s) for f_n, f_s, t_n, t_s in links
                             if set((f_n, t_n)).isdisjoint(reroutes)]
