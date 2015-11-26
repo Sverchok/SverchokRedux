@@ -1,5 +1,5 @@
 import numpy as np
-from itertools import repeat
+from itertools import repeat, zip_longest, chain
 import SverchokRedux.nodes as nodes
 
 
@@ -42,7 +42,7 @@ def match_length(args):
     out = []
     for arg, length in zip(args, lengths):
         if length < max_len:
-            new_arg = np.zeros(max_len)
+            new_arg = np.zeros(max_len, dtype=arg.dtype)
             new_arg[:length] = arg
             new_arg[length:] = arg[-1]
             out.append(new_arg)
@@ -55,6 +55,22 @@ type_table = {
     (float, np.ndarray): lambda n: np.array([n]),
     (int, np.ndarray): lambda n: np.array([n]),
 }
+
+
+def is_broadcastable(a, b):
+    return all((x == 1 or y == 1 or x == y) for x, y in zip(a.shape[::-1], b.shape[::-1]))
+
+
+def make_broadcastable(args):
+    shapes = [arg.shape[::-1] for arg in args]
+    max_shape = [max(s) for s in zip_longest(*shapes, fillvalue=1)]
+    print(max_shape)
+    new_args = []
+    for arg, s in zip(args, shapes[::-1]):
+        new_shape = [max(m, a) if a != 1 else 1 for m, a in zip(max_shape[::-1], arg.shape[::-1])]
+        new_arg = np.zeros(tuple(new_shape[::-1]))
+        print(new_arg.shape, arg.shape)
+        #for i, s in enumerate(new_shape):
 
 
 def expand_types(t):
@@ -81,12 +97,26 @@ def convert_type(value, to_type):
 
 
 def recursive_map(func, args, inputs_types, level=0):
-    outputs = 0
+
     if func.outputs:
         outputs = len(func.outputs)
+    else:
+        outputs = 0
 
     if level == 0 and isinstance(args, inputs_types[0]):
         return func(*args)
+
+    is_nd = [i_t == np.ndarray for i_t in chain(*inputs_types)]
+    print(func.__name__, level, is_nd, inputs_types)
+
+    def match_id(x):
+        return x
+
+    if all(is_nd):
+        match = match_length
+    else:
+        match = match_id
+
     # print(args)
     # args = [convert_type(arg, inputs_types) for arg in args]
     checked = [isinstance(arg, types) for arg, types in zip(args, inputs_types)]
@@ -99,10 +129,13 @@ def recursive_map(func, args, inputs_types, level=0):
     else:
         new_args = args
 
-    res = [recursive_map(func, arg, inputs_types, level + 1) for arg in zip(*new_args)]
+    res = [recursive_map(func, match(arg), inputs_types, level + 1) for arg in zip(*new_args)]
     if outputs < 2:
         return res
     return list(zip(*res))
+
+
+#  Graph part of exec engine
 
 
 def get_graph_cls(bl_idname):
