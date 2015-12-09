@@ -40,6 +40,7 @@ def serialize(node):
 
     return node_dict
 
+
 def find_enumerators(node):
     """
     From sverchok, by zeffi
@@ -68,7 +69,6 @@ class SvRxNode:
                 self.outputs.new(socket_type, name)
                 if "default_value" in args:
                     s.default_value = args["default_value"]
-
 
     def update(self):
         pass

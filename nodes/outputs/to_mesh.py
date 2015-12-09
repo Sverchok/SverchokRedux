@@ -9,7 +9,9 @@ def to_mesh(vertices: np.ndarray = 0, edges: np.ndarray = 0) -> None:
 to_mesh.label = "To mesh"
 to_mesh.match = lambda x: x
 
+
 # the below taken from bmesh/utils viewer in sverchok
+
 
 def default_mesh(name):
     verts, faces = [(1, 1, -1), (1, -1, -1), (-1, -1, -1)], [(0, 1, 2)]
