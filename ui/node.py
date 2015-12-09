@@ -1,7 +1,6 @@
 from bpy.types import EnumProperty
 from . import socket as SvRxSocket
 
-
 def serialize(node):
     node_dict = {}
     node_items = {}
@@ -69,6 +68,10 @@ class SvRxNode:
                 self.outputs.new(socket_type, name)
                 if "default_value" in args:
                     s.default_value = args["default_value"]
+
+    def draw_buttons(self, context, layout):
+        for prop in self.svrx_props:
+            layout.prop(self, prop)
 
     def update(self):
         pass
