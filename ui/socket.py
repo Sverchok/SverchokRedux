@@ -9,8 +9,10 @@ def serialize(socket):
                    }
     return socket_dict
 
+
 def execute_tree(self, context):
     self.id_data.execute()
+
 
 class SvRxSocketBase(object):
     """base class for sockets """
@@ -65,6 +67,34 @@ class SvRxMeshSocket(bpy.types.NodeSocket):
             layout.prop(self, "default_value", text=text)
         else:
             layout.label(text)
+
+    def draw_color(self, context, node):
+        return(0.6, 1.0, 0.6, 1.0)
+
+
+class SvRxIntValueSocket(bpy.types.NodeSocket, SvRxSocketBase):
+
+    default_value = bpy.props.IntProperty(update=execute_tree)
+
+    def draw(self, context, layout, node, text):
+        if self.is_output:
+            layout.prop(self, "default_value", text=text)
+        else:
+            pass
+
+    def draw_color(self, context, node):
+        return(0.6, 1.0, 0.6, 1.0)
+
+
+class SvRxFloatValueSocket(bpy.types.NodeSocket, SvRxSocketBase):
+
+    default_value = bpy.props.FloatProperty(update=execute_tree)
+
+    def draw(self, context, layout, node, text):
+        if self.is_output:
+            layout.prop(self, "default_value", text=text)
+        else:
+            pass
 
     def draw_color(self, context, node):
         return(0.6, 1.0, 0.6, 1.0)
