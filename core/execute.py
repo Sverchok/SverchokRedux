@@ -96,7 +96,7 @@ def convert_type(value, to_type):
 # f(a0, a1, ..., aN) -> x
 
 
-def recursive_map(func, args, inputs_types, level=0):
+def recursive_map(func, args, kwargs, inputs_types, level=0):
 
     if func.outputs:
         outputs = len(func.outputs)
@@ -104,7 +104,7 @@ def recursive_map(func, args, inputs_types, level=0):
         outputs = 0
 
     if level == 0 and isinstance(args, inputs_types[0]):
-        return func(*args)
+        return func(*args, **kwargs)
 
     is_nd = [i_t == np.ndarray for i_t in chain(*inputs_types)]
     # print(func.__name__, level, is_nd, inputs_types)
@@ -127,13 +127,13 @@ def recursive_map(func, args, inputs_types, level=0):
     # print(func.__name__, checked, args, inputs_types, level, [type(a) for a in args])
 
     if all(checked):
-        return func(*match(args))
+        return func(*match(args), **kwargs)
     if any(checked):
         new_args = [repeat(arg) if check else arg for check, arg in zip(checked, args)]
     else:
         new_args = args
 
-    res = [recursive_map(func, match(arg), inputs_types, level + 1) for arg in zip(*new_args)]
+    res = [recursive_map(func, match(arg), kwargs, inputs_types, level + 1) for arg in zip(*new_args)]
     if outputs < 2:
         return res
     return list(zip(*res))
@@ -215,6 +215,8 @@ class ExecNode(GraphNode):
         node_data = nodes.get_node_data(bl_idname)
         self.func = node_data.func
         self.inputs_types = [expand_types(i[0]) for i in node_data.inputs]
+        params = layout_dict["nodes"][name]["params"]
+        self.kwargs = {n.replace("svrx_", ""): v for n, v in params.items()}
 
     def execute(self, visited=set()):
         visited.add(self)
@@ -223,7 +225,7 @@ class ExecNode(GraphNode):
             child.execute(visited)
 
         args = [child.get_value(offset) for child, offset in zip(self.children, self.offsets)]
-        self.value = recursive_map(self.func, args, self.inputs_types)
+        self.value = recursive_map(self.func, args, self.kwargs, self.inputs_types)
         # print(self.value)
 
 

@@ -7,6 +7,7 @@ from ..ui.node import SvRxNode
 
 
 def execute_tree(self, context):
+    #  print(dir(context))
     self.id_data.execute()
 
 NodeData = collections.namedtuple("NodeData", ['cls', 'func', 'category', 'inputs', 'outputs'])
@@ -38,8 +39,8 @@ def get_signature(func):
             break
         s = (annotations[name], name, {"default_value": parameter.default})
         inputs_template.append(s)
+
     for name, parameter in items:
-        print(name, parameter, annotations[name])
         if not isinstance(annotations[name], tuple):
             continue
         prop = annotations[name]
