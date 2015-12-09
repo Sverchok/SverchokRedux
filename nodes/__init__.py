@@ -1,4 +1,4 @@
-from SverchokRedux.core.node import node_factory_from_func
+from SverchokRedux.core.factory import node_factory_from_func
 import bpy
 import collections
 
