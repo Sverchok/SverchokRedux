@@ -34,20 +34,24 @@ def get_signature(func):
     inputs_template = []
     properties = {}
     items = list(sig.parameters.items())
+    offset = 0
     for name, parameter in items:
         if isinstance(annotations[name], tuple):  # and annotations[name][0].__name__.endswith("Propery"):
             break
         s = (annotations[name], name, {"default_value": parameter.default})
         inputs_template.append(s)
+        offset += 1
 
-    for name, parameter in items:
-        if not isinstance(annotations[name], tuple):
-            continue
-        prop = annotations[name]
-        prop[1].update({"name": name,
-                        "default": parameter.default,
-                        "update": execute_tree})
-        properties["svrx_{}".format(name)] = prop
+    for name, parameter in items[offset:]:
+        func, kwargs = annotations[name]
+        defaults = {"name": name,
+                    "default": parameter.default,
+                    "update": execute_tree}
+        for key, value in defaults.items():
+            if key not in kwargs:
+                kwargs[key] = value
+        properties["svrx_{}".format(name)] = (func, kwargs)
+
     if not inputs_template:
         inputs_template = None
     ret_values = annotations.get("return")
