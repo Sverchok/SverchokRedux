@@ -2,7 +2,6 @@ import bpy
 import inspect
 import numpy as np
 import collections
-import bpy
 
 from ..ui.node import SvRxNode
 from ..nodes import svtyping
