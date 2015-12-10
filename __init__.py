@@ -69,15 +69,12 @@ def import_submodules(package, recursive=True):
 
 imported_modules = import_submodules(__name__)
 
-nodes.load_nodes(imported_modules)
-
 reload_event = bool("bpy" in locals())
 
 if reload_event:
     print("SvRx reloading")
     for im in imported_modules.values():
         importlib.reload(im)
-    nodes.load_nodes(imported_modules)
     ui.menu.reload_menu()
 
 # this is used as a marker for reload
