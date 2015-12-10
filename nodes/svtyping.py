@@ -50,8 +50,20 @@ class ValueFloat(Float):
     pass
 
 
-class ValueInterger(Integer):
+class ValueInteger(Integer):
     pass
+
+
+class DataTree():
+    def __getitem__(self, parameters):
+        if self is None:
+            return DataTree(parameters)
+        else:
+            raise TypeError
+    def __init__(self, parameters):
+        self._type = parameters
+    def get_type(self):
+        return self._type
 
 
 def socket_type(t):
@@ -69,6 +81,6 @@ _type_dict = {Color: "SvRxColorSocket",
               Topology: "SvRxTopologySocket",
               Vertices: "SvRxVerticesSocket",
               Vector: "SvRxVectorSocket",
-              ValueInterger: "SvRxIntValueSocket",
+              ValueInteger: "SvRxIntValueSocket",
               ValueFloat: "SvRxFloatValueSocket",
               }
