@@ -5,4 +5,4 @@ def arange(start : int = 0, stop : int = 10, step : int = 1) -> [("range", np.nd
 
 arange.label = "Range"
 
-SvRxFunc = [arange]
+# SvRxFunc = [arange]

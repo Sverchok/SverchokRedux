@@ -51,7 +51,8 @@ def find_enumerators(node):
 
 
 class SvRxNode:
-
+    """Base class for SverchokRedux classes
+    """
     @classmethod
     def poll(cls, ntree):
         return ntree.bl_idname in {'SvRxTreeType'}

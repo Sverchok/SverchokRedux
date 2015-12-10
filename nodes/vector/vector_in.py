@@ -1,7 +1,8 @@
 import numpy as np
+from ..svtyping import Number, Vertices
 
 
-def vector_in(x: np.ndarray = 0.0, y: np.ndarray = 0.0, z: np.ndarray = 0.0) -> [("vec", np.ndarray)]:
+def vector_in(x: Number = 0.0, y: Number = 0.0, z: Number = 0.0) -> [("vec", Vertices)]:
     out = np.zeros((len(x), 3))
     out[:, 0] = x
     out[:, 1] = y

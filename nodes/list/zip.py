@@ -1,7 +1,8 @@
 import numpy as np
+from ..svtyping import Number
 
 
-def sv_zip(a: np.ndarray = 0, b: np.ndarray = 0) -> [("res", np.ndarray)]:
+def sv_zip(a: Number = 0, b: Number = 0) -> [("res", Number)]:
     l = min(len(a), len(b))
     out = np.zeros((l, 2), dtype=a.dtype)
     out[:, 0] = a[:l]

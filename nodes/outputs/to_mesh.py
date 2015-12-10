@@ -1,9 +1,10 @@
 import bpy
 import bmesh
 import numpy as np
+from ..svtyping import Vertices, Topology
 
 
-def to_mesh(vertices: np.ndarray = 0, edges: np.ndarray = 0) -> None:
+def to_mesh(vertices: Vertices, edges: Topology) -> None:
     make_bmesh_geometry(vertices, edges)
 
 to_mesh.label = "To mesh"

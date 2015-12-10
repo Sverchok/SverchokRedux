@@ -1,11 +1,12 @@
 import numpy as np
+from ..svtyping import Number
 
 
-def sub(x: np.ndarray = 0.0, y: np.ndarray = 1.0) -> [("res", np.ndarray)]:
+def sub(x: Number = 0.0, y: Number = 1.0) -> [("res", Number)]:
     return x - y
 
 
-def mul(x: np.ndarray = 0.0, y: np.ndarray = 1.0) -> [("res", np.ndarray)]:
+def mul(x: Number = 0.0, y: Number = 1.0) -> [("res", Number)]:
     return x * y
 
 

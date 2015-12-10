@@ -11,4 +11,4 @@ def linspace(start: float = 0.0,
 
 linspace.label = "Linear space"
 
-SvRxFunc = [linspace]
+# SvRxFunc = [linspace]

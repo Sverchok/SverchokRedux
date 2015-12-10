@@ -2,8 +2,10 @@ import bpy
 import inspect
 import numpy as np
 import collections
+import bpy
 
 from ..ui.node import SvRxNode
+from ..nodes import svtyping
 
 
 def execute_tree(self, context):
@@ -14,14 +16,7 @@ NodeData = collections.namedtuple("NodeData", ['cls', 'func', 'category', 'input
 
 
 def Socket(s_type, name, **kwargs):
-    #  1 should match s_type to socket,
-    #  2 match to specific subtype
-    type_dict = {int: "SvRxIntSocket",
-                 float: "SvRxFloatSocket",
-                 np.ndarray: "SvRxFloatSocket",
-                 list: "SvRxGenericSocket",
-                 }
-    return type_dict[s_type], name, kwargs
+    return svtyping.socket_type(s_type), name, kwargs
 
 
 def get_signature(func):

@@ -1,6 +1,7 @@
 import numpy as np
 from itertools import repeat, zip_longest, chain
 import SverchokRedux.nodes as nodes
+import bpy
 
 
 def create_graph(node, layout_dict, graph_dict={}):
@@ -93,7 +94,7 @@ def convert_type(value, to_type):
 
     return value
 
-# f(a0, a1, ..., aN) -> x
+# f(a0, a1, ..., aN) -> x0, x1, ..., xN
 
 
 def recursive_map(func, args, kwargs, inputs_types, level=0):
@@ -121,10 +122,10 @@ def recursive_map(func, args, kwargs, inputs_types, level=0):
     else:
         match = match_id
 
-    # print(args)
+    print(args)
     # args = [convert_type(arg, inputs_types) for arg in args]
 
-    # print(func.__name__, checked, args, inputs_types, level, [type(a) for a in args])
+    print(func.__name__, checked, args, inputs_types, level, [type(a) for a in args])
 
     if all(checked):
         return func(*match(args), **kwargs)
@@ -148,6 +149,8 @@ def get_graph_cls(bl_idname):
     """
     cls_table = {
         "SvRxNodeif_node": IfNode,
+        'SvRxNodeInputsFloat_In': ExtValueNode,
+        'SvRxNodeInputsInt_In:': ExtValueNode,
     }
     return cls_table.get(bl_idname, ExecNode)
 
@@ -156,7 +159,6 @@ class GraphNode():
     def __init__(self, name, layout_dict={}):
         self.name = name
         self.children = []
-        self.value = None
         self.offsets = []
 
     def __iter__(self):
@@ -206,6 +208,21 @@ class ValueNode(GraphNode):
         self.name = name
         self.value = np.array([value])
         self.children = []
+
+
+class ExtValueNode(GraphNode):
+    def __init__(self, name, layout_dict):
+        super().__init__(name)
+        self._treename = layout_dict["name"]
+        self._nodename = name
+
+    @property
+    def value(self):
+        prop = bpy.data.node_groups[self._treename].nodes[self._nodename].outputs[0].default_value
+        if isinstance(prop, (float, int)):
+            return np.array([prop])
+        else:  # more cases needed
+            return prop[:]
 
 
 class ExecNode(GraphNode):
