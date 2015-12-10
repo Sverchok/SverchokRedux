@@ -34,7 +34,13 @@ def execute_tree(self, context):
 
 class SvRxSocketBase(object):
     """base class for sockets """
-    default_value = None
+    @property
+    def default_value(self):
+        return None
+
+    @default_value.setter
+    def default_value(self, value):
+        raise ValueError("Cannot set value of {} in {}".format(self.name, self.node.name))
 
     def draw(self, context, layout, node, text):
         layout.label(text)
@@ -150,6 +156,32 @@ class ValueSocketBase(SvRxSocketBase):
         else:
             pass
 
+
+'''
+class SvRxIntValueSocket(bpy.types.NodeSocket, ValueSocketBase):
+    """ For use with input nodes"""
+
+    int_value = IntProperty()
+    float_value = IntProperty()
+    mode_enum = EnmuProperty(...) # name matching the name of the property
+
+    @property
+    def default_value(self):
+        return getattr(self, self.mode_enum)
+
+    @default_value.setter
+    def default_value(self):
+        setattr(self, self.mode_enum, value)
+
+    def draw_color(self, context, node):
+        return NUMBER_SOCKET
+
+    def draw(self, context, layout, node, text):
+        if self.is_output:
+            layout.prop(self, self.mode_enum, text=text)
+        else:
+            pass
+'''
 
 class SvRxIntValueSocket(bpy.types.NodeSocket, ValueSocketBase):
     """ For use with input nodes"""
