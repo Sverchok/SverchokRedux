@@ -10,5 +10,3 @@ def linspace(start: float = 0.0,
     return np.linspace(start, stop, count, endpoint=endpoint)
 
 linspace.label = "Linear space"
-
-# SvRxFunc = [linspace]

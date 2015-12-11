@@ -2,13 +2,12 @@ import bpy
 import bmesh
 import numpy as np
 from ..svtyping import Vertices, Topology
+from ..decorators import node_func
 
 
+@node_func(label="To mesh", match=lambda x: x)
 def to_mesh(vertices: Vertices, edges: Topology) -> None:
     make_bmesh_geometry(vertices, edges)
-
-to_mesh.label = "To mesh"
-to_mesh.match = lambda x: x
 
 
 # the below taken from bmesh/utils viewer in sverchok
