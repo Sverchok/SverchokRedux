@@ -69,14 +69,34 @@ def to_gist(file_names, project_name='noname', public_switch=True):
 
 # Gists can contain multiple files, we'll downlaod all by default.
 
+def to_gist(file_names, project_name='noname', public_switch=True):
+    gist_files_dict = {}
+    for f in file_names:
+        tfile = bpy.data.texts.get(f)
+        if tfile:
+            file_content = tfile.as_string()
+            gist_files_dict[f] = {"content": file_content}
+
+    upload(gist_files_dict, project_name, public_switch)
+
+
+# Gists can contain multiple files, we'll downlaod all by default.
+
 def download(gist_id):
 
-    def get_raw_url_from_gist_id(gist_id):
+    has_readall = False
+
+    def get_raw_urls_from_gist_id(gist_id):
 
         gist_id = str(gist_id)
         url = 'https://api.github.com/gists/' + gist_id
 
-        found_json = urlopen(url).readall().decode()
+        obtained_url = urlopen(url)
+        if hasattr(obtained_url, 'readall'):
+            found_json = obtained_url.readall().decode()
+            has_readall = True
+        else:
+            found_json = obtained_url.read().decode()
 
         wfile = json.JSONDecoder()
         wjson = wfile.decode(found_json)
@@ -87,14 +107,8 @@ def download(gist_id):
         names_to_urls_dict = {f: wjson[files_flag][f]['raw_url'] for f in file_names}
         return names_to_urls_dict
 
-    def get_files(gist_id):
-        url_dict = get_raw_url_from_gist_id(gist_id)
-        # conn = urlopen(url).readall().decode()
-        # return conn
-        print(url_dict)
-
     texts = bpy.data.texts
-    files_dict = get_files(gist_id)
+    files_dict = get_raw_urls_from_gist_id(gist_id)
     pf = time.strftime("_%Y_%m_%d_%H-%M")
 
     for file_name, url in files_dict.items():
@@ -102,7 +116,10 @@ def download(gist_id):
             t = texts.new(file_name + pf)
         else:
             t = texts.new(file_name)
-        content = urlopen(url).readall().decode()
+        if has_readall:
+            content = urlopen(url).readall().decode()
+        else:
+            content = urlopen(url).read().decode()
         t.from_string(content)
 
 # download('922e5378c1ff87399f62')
