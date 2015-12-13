@@ -5,22 +5,15 @@ from urllib.request import urlopen
 import webbrowser
 import time
 
+"""
+zeffii 13 Dec 2015:
+It might be possible to remove the check for hasattr(this, 'readall'),
+and use this.read().decode() everywhere. it looks fugly.
 
-# def find_filenames():
-#     filenames = set()
-#     for window in bpy.context.window_manager.windows:
-#         for area in window.screen.areas:
-
-#             if not area.type == 'TEXT_EDITOR':
-#                 continue
-
-#             for s in area.spaces:
-#                 if s.type == 'TEXT_EDITOR':
-#                     filenames.add(s.text.name)
-#     return filenames
+"""
 
 
-def upload(gist_files_dict, project_name, public_switch):
+def process_upload(gist_files_dict, project_name, public_switch):
 
     if len(gist_files_dict) == 0:
         print("nothing to send!")
@@ -50,15 +43,24 @@ def upload(gist_files_dict, project_name, public_switch):
         print(json_to_parse)
 
         print('received response from server')
-        found_json = json_to_parse.readall().decode()
+
+        if hasattr(json_to_parse, 'readall'):
+            found_json = json_to_parse.readall().decode()
+        else:
+            found_json = json_to_parse.read().decode()
+
         get_gist_url(found_json)
 
     upload_gist()
 
 
-# Gists can contain multiple files, we'll downlaod all by default.
-
-def to_gist(file_names, project_name='noname', public_switch=True):
+def upload(file_names, project_name='noname', public_switch=True):
+    """
+    Usage:
+    - file_names is a list of file_names currently loaded in bpy.data.texts
+    - project_name is the name you wish to give to the gist
+    - public_switch allows you to keep the anonymous gist secret (hidden from search)
+    """
     gist_files_dict = {}
     for f in file_names:
         tfile = bpy.data.texts.get(f)
@@ -66,12 +68,18 @@ def to_gist(file_names, project_name='noname', public_switch=True):
             file_content = tfile.as_string()
             gist_files_dict[f] = {"content": file_content}
 
-    upload(gist_files_dict, project_name, public_switch)
+    process_upload(gist_files_dict, project_name, public_switch)
 
 
 # Gists can contain multiple files, we'll downlaod all by default.
 
 def download(gist_id):
+    """
+    Usage: download('922e5378c1ff87399f62')
+    - this will download all files and content of the gist as new textblocks
+    - if a file already exists locally, the new download will get the timestamp appended
+
+    """
 
     has_readall = False
 
@@ -110,5 +118,3 @@ def download(gist_id):
         else:
             content = urlopen(url).read().decode()
         t.from_string(content)
-
-# download('922e5378c1ff87399f62')
