@@ -56,17 +56,6 @@ def upload(gist_files_dict, project_name, public_switch):
     upload_gist()
 
 
-def to_gist(file_names, project_name='noname', public_switch=True):
-    gist_files_dict = {}
-    for f in file_names:
-        tfile = bpy.data.texts.get(f)
-        if tfile:
-            file_content = tfile.as_string()
-            gist_files_dict[f] = {"content": file_content}
-
-    upload(gist_files_dict, project_name, public_switch)
-
-
 # Gists can contain multiple files, we'll downlaod all by default.
 
 def to_gist(file_names, project_name='noname', public_switch=True):
