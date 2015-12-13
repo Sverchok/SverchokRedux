@@ -13,6 +13,13 @@ and use this.read().decode() everywhere. it looks fugly.
 """
 
 
+def decode_url(parsable):
+    if hasattr(parsable, 'readall'):
+        return parsable.readall().decode()
+    else:
+        return parsable.read().decode()
+
+
 def process_upload(gist_files_dict, project_name, public_switch):
 
     if len(gist_files_dict) == 0:
@@ -39,16 +46,11 @@ def process_upload(gist_files_dict, project_name, public_switch):
     def upload_gist():
         print('sending')
         url = 'https://api.github.com/gists'
-        json_to_parse = urlopen(url, data=json_post_data)
-        print(json_to_parse)
 
+        json_to_parse = urlopen(url, data=json_post_data)
         print('received response from server')
 
-        if hasattr(json_to_parse, 'readall'):
-            found_json = json_to_parse.readall().decode()
-        else:
-            found_json = json_to_parse.read().decode()
-
+        found_json = decode_url(json_to_parse)
         get_gist_url(found_json)
 
     upload_gist()
@@ -71,7 +73,7 @@ def upload(file_names, project_name='noname', public_switch=True):
     process_upload(gist_files_dict, project_name, public_switch)
 
 
-# Gists can contain multiple files, we'll downlaod all by default.
+# Gists can contain multiple files, we'll download all by default.
 
 def download(gist_id):
     """
@@ -81,20 +83,12 @@ def download(gist_id):
 
     """
 
-    has_readall = False
-
     def get_raw_urls_from_gist_id(gist_id):
 
         gist_id = str(gist_id)
         url = 'https://api.github.com/gists/' + gist_id
 
-        obtained_url = urlopen(url)
-        if hasattr(obtained_url, 'readall'):
-            found_json = obtained_url.readall().decode()
-            has_readall = True
-        else:
-            found_json = obtained_url.read().decode()
-
+        found_json = decode_url(urlopen(url))
         wfile = json.JSONDecoder()
         wjson = wfile.decode(found_json)
 
@@ -113,8 +107,6 @@ def download(gist_id):
             t = texts.new(file_name + pf)
         else:
             t = texts.new(file_name)
-        if has_readall:
-            content = urlopen(url).readall().decode()
-        else:
-            content = urlopen(url).read().decode()
+
+        content = decode_url(urlopen(url))
         t.from_string(content)
