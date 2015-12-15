@@ -1,6 +1,6 @@
 import numpy as np
 from itertools import repeat, zip_longest, chain
-import SverchokRedux.nodes as nodes
+from .. import nodes
 import bpy
 
 

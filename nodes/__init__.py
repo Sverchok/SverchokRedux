@@ -1,4 +1,3 @@
-from SverchokRedux.core.factory import node_factory_from_func
 import bpy
 import collections
 import traceback

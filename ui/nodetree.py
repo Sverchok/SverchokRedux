@@ -1,5 +1,5 @@
 from bpy.types import NodeTree
-from SverchokRedux.core import compiler
+from ..core import compiler
 from . import node as SvRxNode
 
 
