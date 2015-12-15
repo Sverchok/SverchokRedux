@@ -1,5 +1,10 @@
 
+
 def proprocess(layout_dict):
+    remove_reroutes(layout_dict)
+
+
+def remove_reroutes(layout_dict):
     """
     Clean up layout before compling
 
