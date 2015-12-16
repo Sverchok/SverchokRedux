@@ -3,13 +3,19 @@ import importlib.abc
 import importlib.util
 import keyword
 import sys
+from ..ui import menu
 
 import bpy
 import bpy.types
+from .. import nodes as svrx_nodes
 
 _script_modules = {}
 
+
 def load_script(text):
+    """
+    Will load the blender text file as a module in nodes.script
+    """
     if text.endswith("py"):
         name = text.rstrip(".py")
     else:
@@ -25,6 +31,17 @@ def load_script(text):
     else:
         mod = importlib.import_module("SverchokRedux.nodes.script.{}".format(name))
         _script_modules[name] = mod
+
+    new_nodes = svrx_nodes.get_new_nodes()
+
+    if new_nodes:
+        print("Load {} new nodes from {}".format(len(new_nodes), mod))
+        menu.reload_menu()
+    else:
+        print("No new nodes loaded")
+
+    return new_nodes
+
 
 
 

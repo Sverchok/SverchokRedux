@@ -1,5 +1,8 @@
+import bpy
 from bpy.types import EnumProperty
+from bpy.props import StringProperty, BoolProperty
 from . import socket as SvRxSocket
+
 
 def serialize(node):
     node_dict = {}
@@ -99,3 +102,42 @@ class SvRxNode:
         for socket_data in node_data["inputs"]:
             name = socket_data["name"]
             self.inputs[name].load(socket_data)
+
+
+class SvRxScriptNode(SvRxNode):
+
+    text_file = StringProperty()
+
+    def draw_buttons(self, context, layout):
+        if not self.text_file:
+            row = layout.row()
+            row.prop_search(self, 'text_file', bpy.data, 'texts', text='', icon='TEXT')
+            row.operator("node.SVRX_load_script")
+        else:
+            layout.text("Script node")
+            super().draw_buttons(self, context, layout)
+
+
+class SvRxLoadSript(bpy.types.Operator):
+
+    bl_idname = "node.svrxloadscript"
+    bl_label = "SvRx scriptnode callback"
+    bl_options = {'REGISTER', 'UNDO'}
+
+    relink_node = BoolProperty(default=False)
+
+    def execute(self, context):
+        n = context.node
+        text_file = n.text_file
+        if text_file in bpy.data.texts:
+            new_nodes = loadscript.load_script(text_file)
+            if new_nodes:
+                if not relink_node:
+                    bl_idname = new_nodes[0]
+                    node = n.id_data.nodes.new(bl_idname)
+                    node.location = n.location
+                    node.text_file = text_file
+                    node.id_data.nodes.remove(n)
+                    return {'FINISHED'}
+
+        return {'CANCELLED'}

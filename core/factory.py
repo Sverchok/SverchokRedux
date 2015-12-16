@@ -3,7 +3,7 @@ import inspect
 import numpy as np
 import collections
 
-from ..ui.node import SvRxNode
+from ..ui.node import SvRxNode, SvRxScriptNode
 from ..nodes import svtyping
 
 
@@ -61,7 +61,11 @@ def node_factory_from_func(func):
     module_name = func.__module__.split(".")[2].title()
     func_name = func.__name__.title()
     class_name = "SvRxNode{}{}".format(module_name, func_name)
-    bases = (SvRxNode, bpy.types.Node)
+
+    if module_name == "script":
+        bases = (SvRxScriptNode, bpy.types.Node)
+    else:
+        bases = (SvRxNode, bpy.types.Node)
 
     inputs, outputs, properties = get_signature(func)
     func.inputs = inputs
