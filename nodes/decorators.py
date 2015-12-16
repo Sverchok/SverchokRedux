@@ -1,27 +1,4 @@
-from ..nodes import _node_dict
-from ..core.factory import node_factory_from_func
-from ..ui import menu
-import bpy
-import bpy.types
-import traceback
-
-
-def register_node(func, register_new=False):
-    try:
-        node_data = node_factory_from_func(func)
-        if register_new:
-            if hasattr(bpy.types, node_data.cls.bl_idname):
-                bpy.utils.unregister_class(node_data.cls)
-            bpy.utils.register_class(node_data.cls)
-            _node_dict[node_data.cls.bl_idname] = node_data
-            menu.reload_menu()
-        else:
-            _node_dict[node_data.cls.bl_idname] = node_data
-
-    except Exception as err:
-        print("Error: failed to load {}".format(func.__name__))
-        traceback.print_tb(err.__traceback__)
-        raise err
+from ..nodes import _node_dict, register_node
 
 
 def node_script(*args, **values):
