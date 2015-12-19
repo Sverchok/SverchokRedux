@@ -46,6 +46,20 @@ def make_node_cats():
     return node_cats
 
 
+def group_nodes(context):
+    yield NodeItem("SvRxScriptScriptNode", "Script")
+    gen = (nd for nd in node_dict.values() if nd.category == "Script")
+    for nd in gen:
+        yield NodeItem(nd.cls.bl_idname, nd.cls.bl_label)
+
+
+def script_nodes(context):
+    #yield NodeItem("SvRxScriptScriptNode", "Script")
+    gen = (nd for nd in node_dict.values() if nd.category == "Script")
+    for nd in gen:
+        yield NodeItem(nd.cls.bl_idname, nd.cls.bl_label)
+
+
 def make_categories():
     node_cats = make_node_cats()
 
@@ -58,7 +72,8 @@ def make_categories():
             # bl_idname, name
             items=[NodeItem(*data) for data in nodes]))
         node_count += len(nodes)
-
+    scripts = SvRxNodeCategory("SVRX_Script", "Script", items=script_nodes)
+    node_categories.append(scripts)
     return node_categories, node_count
 
 

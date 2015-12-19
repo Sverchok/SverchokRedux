@@ -1,4 +1,4 @@
-from ..nodes import _node_dict, register_node
+from ..nodes import register_node
 
 
 def node_script(*args, **values):

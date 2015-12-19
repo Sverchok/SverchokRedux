@@ -26,11 +26,11 @@ def get_signature(func):
     annotations = func.__annotations__
     sig = inspect.signature(func)
     inputs_template = []
-    properties = {}
+    properties = collections.OrderedDict()
     items = list(sig.parameters.items())
     offset = 0
     for name, parameter in items:
-        if isinstance(annotations[name], tuple):  # and annotations[name][0].__name__.endswith("Propery"):
+        if isinstance(annotations[name], tuple):  # and annotations[name][0].__name__.endswith("Property"):
             break
         s = (annotations[name], name, {"default_value": parameter.default})
         inputs_template.append(s)

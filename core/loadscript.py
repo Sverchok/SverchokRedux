@@ -36,13 +36,10 @@ def load_script(text):
 
     if new_nodes:
         print("Load {} new nodes from {}".format(len(new_nodes), mod))
-        menu.reload_menu()
     else:
         print("No new nodes loaded")
 
     return new_nodes
-
-
 
 
 class SvRxFinder(importlib.abc.MetaPathFinder):

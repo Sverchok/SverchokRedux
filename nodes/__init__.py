@@ -20,7 +20,7 @@ def register_node(func, register_new=False):
             cls = node_data.cls
             bl_idname = cls.bl_idname
             if bl_idname in _node_dict:
-                bpy.utils.unregister_class(_node_dict[bl_idname])
+                bpy.utils.unregister_class(_node_dict[bl_idname].cls)
                 del _node_dict[bl_idname]
             bpy.utils.register_class(node_data.cls)
             _node_dict[node_data.cls.bl_idname] = node_data
@@ -40,7 +40,7 @@ def get_node_data(bl_idname):
 
 def get_new_nodes():
     tmp = _new_nodes[:]
-    _new_nodes = []
+    _new_nodes.clear()
     return tmp
 
 
