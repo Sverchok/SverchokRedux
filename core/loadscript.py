@@ -16,7 +16,7 @@ def load_script(text):
     """
     Will load the blender text file as a module in nodes.script
     """
-    if text.endswith("py"):
+    if text.endswith(".py"):
         name = text.rstrip(".py")
     else:
         name = text
@@ -35,7 +35,7 @@ def load_script(text):
     new_nodes = svrx_nodes.get_new_nodes()
 
     if new_nodes:
-        print("Load {} new nodes from {}".format(len(new_nodes), mod))
+        print("Loaded {} new nodes from {}".format(len(new_nodes), mod))
     else:
         print("No new nodes loaded")
 
