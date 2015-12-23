@@ -77,6 +77,12 @@ class SvRxNode:
         for prop in self.svrx_props:
             layout.prop(self, prop)
 
+    def draw_buttons_ext(self, context, layout):
+        self.draw_buttons(contex, layout)
+        for prop in self.svrx_props_ext:
+            layout.prop(self, prop)
+
+
     def update(self):
         pass
 
@@ -112,10 +118,10 @@ class SvRxScriptNode(SvRxNode):
         if not self.text_file:
             row = layout.row()
             row.prop_search(self, 'text_file', bpy.data, 'texts', text='', icon='TEXT')
-            row.operator("node.SVRX_load_script")
+            #row.operator("node.SVRX_load_script")
         else:
-            layout.text("Script node")
-            super().draw_buttons(self, context, layout)
+            layout.label("Script node")
+            super().draw_buttons(context, layout)
 
 
 class SvRxLoadSript(bpy.types.Operator):

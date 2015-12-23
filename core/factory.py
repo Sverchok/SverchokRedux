@@ -27,6 +27,8 @@ def get_signature(func):
     sig = inspect.signature(func)
     inputs_template = []
     properties = collections.OrderedDict()
+    properties_ext = collections.OrderedDict()
+
     items = list(sig.parameters.items())
     offset = 0
     for name, parameter in items:
@@ -40,11 +42,16 @@ def get_signature(func):
         func, kwargs = annotations[name]
         defaults = {"name": name,
                     "default": parameter.default,
-                    "update": execute_tree}
+                    "update": execute_tree,
+                    "ext": False}
         for key, value in defaults.items():
             if key not in kwargs:
                 kwargs[key] = value
-        properties["svrx_{}".format(name)] = (func, kwargs)
+        is_ext = kwargs.pop("ext")
+        if is_ext:
+            properties_ext["svrx_{}".format(name)] = (func, kwargs)
+        else:
+            properties["svrx_{}".format(name)] = (func, kwargs)
 
     if not inputs_template:
         inputs_template = None
@@ -62,16 +69,16 @@ def node_factory_from_func(func):
     func_name = func.__name__.title()
     class_name = "SvRxNode{}{}".format(module_name, func_name)
 
-    if module_name == "script":
+    if module_name == "Script":
         bases = (SvRxScriptNode, bpy.types.Node)
     else:
         bases = (SvRxNode, bpy.types.Node)
 
-    inputs, outputs, properties = get_signature(func)
+    inputs, outputs, properties, properties_ext = get_signature(func)
     func.inputs = inputs
     func.outputs = outputs
     node_dict = properties.copy()
-
+    node_dict.update(properties_ext)
     node_dict["bl_idname"] = class_name
     node_dict["bl_label"] = getattr(func, "label", func.__name__).title()
     node_dict["bl_icon"] = 'OUTLINER_OB_EMPTY'
@@ -79,6 +86,7 @@ def node_factory_from_func(func):
     node_dict["inputs_template"] = [Socket(*data[:2], **data[-1]) for data in inputs] if inputs else None
     node_dict["outputs_template"] = [Socket(*data) for data in outputs] if outputs else None
     node_dict["svrx_props"] = list(properties.keys())
+    node_dict["svrx_props_ext"] = list(properties_ext.keys())
 
     node_class = type(class_name, bases, node_dict)
     return NodeData(node_class, func, module_name, inputs, outputs)
