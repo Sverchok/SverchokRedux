@@ -78,7 +78,7 @@ class SvRxNode:
             layout.prop(self, prop)
 
     def draw_buttons_ext(self, context, layout):
-        self.draw_buttons(contex, layout)
+        self.draw_buttons(context, layout)
         for prop in self.svrx_props_ext:
             layout.prop(self, prop)
 

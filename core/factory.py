@@ -60,7 +60,7 @@ def get_signature(func):
         outputs_template = [(socket_type, name) for name, socket_type in ret_values]
     else:
         outputs_template = None
-    return inputs_template, outputs_template, properties
+    return inputs_template, outputs_template, properties, properties_ext
 
 
 def node_factory_from_func(func):
